@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: wallet
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost/wallet_db
+    username: postgres
+    password: joseph45.
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${app.keycloak.serverUrl}/realms/${app.keycloak.realm}
+server:
+  port: 8080
+  servlet:
+    context-path: /auth
+app:
+  keycloak:
+    admin:
+      clientId: admin-cli
+      clientSecret: pHJbF76NVZA3gyynb0a5PzHIgZaF3bdJ
+    realm: walletApplication
+    serverUrl: http://localhost:8085
+
