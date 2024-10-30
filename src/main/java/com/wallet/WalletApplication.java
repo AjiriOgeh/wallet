@@ -3,7 +3,7 @@ package com.wallet;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.wallet")
 public class WalletApplication {
 
 	public static void main(String[] args) {

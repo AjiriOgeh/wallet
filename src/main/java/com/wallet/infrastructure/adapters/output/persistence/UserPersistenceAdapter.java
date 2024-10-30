@@ -7,6 +7,7 @@ import com.wallet.infrastructure.adapters.output.persistence.mapper.UserPersiste
 import com.wallet.infrastructure.adapters.output.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -33,5 +34,20 @@ public class UserPersistenceAdapter implements UserOutputPort {
     public void delete(User user) {
         UserEntity userEntity = userPersistenceMapper.mapUserToUserEntity(user);
         userRepository.delete(userEntity);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        Optional<UserEntity> userEntity =  userRepository.findByEmail(email);
+        if(userEntity.isEmpty()) return Optional.empty();
+        User user = userPersistenceMapper.mapUserEntityToUser(userEntity.get());
+        return Optional.of(user);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        return users.stream().map(userPersistenceMapper::mapUserEntityToUser).toList();
+
     }
 }

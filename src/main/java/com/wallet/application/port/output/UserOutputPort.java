@@ -2,6 +2,7 @@ package com.wallet.application.port.output;
 
 import com.wallet.domain.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserOutputPort {
@@ -10,4 +11,8 @@ public interface UserOutputPort {
     Optional<User> findById(Long id);
 
     void delete(User user);
+
+    Optional<User> findByEmail(String email);
+
+    List<User> getAllUsers();
 }
