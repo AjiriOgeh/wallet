@@ -1,6 +1,7 @@
 package com.wallet.infrastructure.adapters.input.rest;
 
 import com.wallet.application.port.input.walletServiceUseCases.*;
+import com.wallet.infrastructure.adapters.input.rest.dto.request.GetWalletTransactionsByDateRequest;
 import com.wallet.domain.model.Transaction;
 import com.wallet.domain.model.Wallet;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.InitialisePaymentRequest;
@@ -15,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -30,6 +30,7 @@ public class WalletRestAdapter {
     private final GetWalletByIdUseCase getWalletByIdUseCase;
     private final CheckBalanceUseCase checkBalanceUseCase;
     private final GetAllWalletTransactionsUseCase getAllWalletTransactionsUseCase;
+    private final GetAllWalletTransactionsByDateUseCase getAllWalletTransactionsByDateUseCase;
     private final WalletRestMapper walletRestMapper;
 
     @PostMapping("/wallet/deposit")
@@ -40,14 +41,14 @@ public class WalletRestAdapter {
     }
 
     @GetMapping("/wallet/verify/{reference}")
-    public ResponseEntity<?> verify(@PathVariable String reference) {
+    public ResponseEntity<?> verify(@PathVariable final String reference) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(verifyDepositUseCase.verifyDeposit(reference), true));
     }
 
     @GetMapping("/wallet/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getWallet(@PathVariable Long id) {
+    public ResponseEntity<?> getWallet(@PathVariable final Long id) {
         Wallet wallet = getWalletByIdUseCase.getWalletById(id);
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(walletRestMapper.mapWalletToGetWalletResponse(wallet), true));
@@ -55,16 +56,28 @@ public class WalletRestAdapter {
 
     @GetMapping("/wallet/balance/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getBalance(@PathVariable Long id) {
+    public ResponseEntity<?> getBalance(@PathVariable final Long id) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(checkBalanceUseCase.checkBalance(id), true));
     }
 
     @GetMapping("/wallet/transactions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getAllWalletTransactions(@PathVariable Long id) {
+    public ResponseEntity<?> getAllWalletTransactions(@PathVariable final Long id) {
         List<Transaction> allWalletTransactions = getAllWalletTransactionsUseCase.getAllWalletTransactions(id);
         return ResponseEntity.status(OK)
-                .body(new ApiResponse(allWalletTransactions.stream().map(walletRestMapper::mapTransactionToTransactionResponse).toList(), true));
+                .body(new ApiResponse(allWalletTransactions.stream()
+                        .map(walletRestMapper::mapTransactionToTransactionResponse).toList(), true));
+    }
+
+    @GetMapping("/wallet/transactions")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getAllWalletTransactionsByDate(
+            @RequestBody @Valid GetWalletTransactionsByDateRequest getWalletTransactionsByDateRequest) {
+        List<Transaction> transactions = getAllWalletTransactionsByDateUseCase.
+                getAllWalletTransactionsByDate(getWalletTransactionsByDateRequest);
+        return ResponseEntity.status(OK)
+                .body(new ApiResponse(transactions.stream()
+                        .map(walletRestMapper::mapTransactionToTransactionResponse).toList(), true));
     }
 }

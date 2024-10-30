@@ -1,4 +1,4 @@
-package com.wallet.domain.model;
+package com.wallet.infrastructure.adapters.input.rest.dto.request;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetAllWalletTransactionsByDate {
+public class GetWalletTransactionsByDateRequest {
     private Long id;
     public LocalDateTime date;
 }

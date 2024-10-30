@@ -17,6 +17,7 @@ public class Transaction {
     private Long transactionId;
     private BigDecimal amount = BigDecimal.ZERO;
     private TransactionType transactionType;
+    private TransactionStatus transactionStatus;
     @Setter(AccessLevel.NONE)
     private LocalDateTime date;
 }

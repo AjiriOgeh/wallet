@@ -46,8 +46,8 @@ public class UserPersistenceAdapter implements UserOutputPort {
 
     @Override
     public List<User> getAllUsers() {
-        List<UserEntity> users = userRepository.findAll();
-        return users.stream().map(userPersistenceMapper::mapUserEntityToUser).toList();
+        List<UserEntity> userEntities = userRepository.findAll();
+        return userEntities.stream().map(userPersistenceMapper::mapUserEntityToUser).toList();
 
     }
 }

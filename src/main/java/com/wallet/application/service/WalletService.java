@@ -5,6 +5,7 @@ import com.wallet.application.port.input.walletServiceUseCases.*;
 import com.wallet.application.port.output.WalletOutputPort;
 import com.wallet.domain.exception.WalletNotFoundException;
 import com.wallet.domain.model.*;
+import com.wallet.infrastructure.adapters.input.rest.dto.request.GetWalletTransactionsByDateRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.InitialisePaymentRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.InitialisePaymentResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
@@ -15,7 +16,6 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.wallet.domain.model.TransactionType.CREDIT;
 
@@ -49,7 +49,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     public InitialisePaymentResponse deposit(InitialisePaymentRequest initialisePaymentRequest) {
         userService.getUserByEmail(initialisePaymentRequest.getEmail());
         InitialisePaymentResponse response = paystackService.initialisePayment(
-                initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount());
+                initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()); // make sure you mutilpy
 
         if (!response.getMessage().equals("Authorization URL created")) {
             throw new RuntimeException("jkjjlkjjlkj");
@@ -66,18 +66,19 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         BigDecimal amount = response.getData().getAmount();
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
         Wallet wallet = getWalletById(user.getWallet().getWalletId());
-        wallet.setBalance(wallet.getBalance().add(amount));
-        Transaction transaction = createTransaction(response, wallet);
+        wallet.setBalance(wallet.getBalance().add(amount)); // make sure you divide
+        Transaction transaction = createTransaction(response);
         wallet.getTransactions().add(transaction);
         walletOutputPort.save(wallet);
         return transaction;
     }
 
-    private Transaction createTransaction(VerifyPaymentResponse verifyPaymentResponse, Wallet wallet) {
+    private Transaction createTransaction(VerifyPaymentResponse verifyPaymentResponse) {
         Transaction transaction = Transaction.builder()
                 .amount(verifyPaymentResponse.getData().getAmount())
                 .transactionType(CREDIT)
-//                .wallet(wallet)
+                .transactionStatus(TransactionStatus.valueOf(verifyPaymentResponse
+                        .getData().getStatus().toUpperCase()))
                 .build();
         return transactionService.createTransaction(transaction);
     }
@@ -95,23 +96,20 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     }
 
     @Override
-    public List<Transaction> getAllWalletTransactionsByDate(GetAllWalletTransactionsByDate getAllWalletTransactionsByDate) {
+    public List<Transaction> getAllWalletTransactionsByDate(
+            GetWalletTransactionsByDateRequest getWalletTransactionsByDateRequest) {
         List<Transaction> transactions = new ArrayList<>();
-        Wallet wallet = getWalletById(getAllWalletTransactionsByDate.getId());
+        Wallet wallet = getWalletById(getWalletTransactionsByDateRequest.getId());
         System.out.println(wallet.getTransactions());
         for (Transaction transaction : wallet.getTransactions()){
-            if (transaction.getDate().isEqual(getAllWalletTransactionsByDate.getDate())) {
+            if (transaction.getDate().isEqual(getWalletTransactionsByDateRequest.getDate())) {
                 transactions.add(transaction);
             }
         }
         return transactions;
     }
 
-    // getall waletts,
-    // transfer
 
-    public static void main(String[] args) {
-        TransactionType transactionType = TransactionType.valueOf("DEBIT");
-        System.out.println(transactionType);
-    }
+    // transfer
+    // paysatack payment in outpout
 }
