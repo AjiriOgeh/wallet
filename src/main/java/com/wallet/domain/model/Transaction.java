@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class Transaction {
     private Long transactionId;
     private BigDecimal amount = BigDecimal.ZERO;
-    @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
     @Setter(AccessLevel.NONE)
     private LocalDateTime date;

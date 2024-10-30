@@ -14,4 +14,11 @@ public class TransactionService implements CreateTransactionUseCase {
     public Transaction createTransaction(Transaction transaction) {
         return transactionOutputPort.save(transaction);
     }
+
+    // all transactions
+    // all transactions by date
+    // all transactiosn keyword
+    // all tranasctions by status
+    // add status for trarnsaciton
+    // paysatack payment in outpout
 }

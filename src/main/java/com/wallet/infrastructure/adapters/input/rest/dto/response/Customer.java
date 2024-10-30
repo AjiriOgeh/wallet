@@ -1,4 +1,4 @@
-package com.wallet.domain.model;
+package com.wallet.infrastructure.adapters.input.rest.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

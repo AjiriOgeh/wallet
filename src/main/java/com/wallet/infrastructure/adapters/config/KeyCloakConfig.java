@@ -21,8 +21,6 @@ public class KeyCloakConfig {
     @Value("${app.keycloak.serverUrl}")
     private String serverUrl;
 
-
-
     @Bean
     public Keycloak keycloak() {
         return KeycloakBuilder.builder()

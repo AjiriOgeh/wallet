@@ -1,9 +1,7 @@
 package com.wallet.infrastructure.adapters.input.rest;
 
-import com.wallet.application.port.input.walletServiceUseCases.CheckBalanceUseCase;
-import com.wallet.application.port.input.walletServiceUseCases.DepositUseCase;
-import com.wallet.application.port.input.walletServiceUseCases.GetWalletByIdUseCase;
-import com.wallet.application.port.input.walletServiceUseCases.VerifyDepositUseCase;
+import com.wallet.application.port.input.walletServiceUseCases.*;
+import com.wallet.domain.model.Transaction;
 import com.wallet.domain.model.Wallet;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.InitialisePaymentRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.ApiResponse;
@@ -15,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -28,10 +29,11 @@ public class WalletRestAdapter {
     private final VerifyDepositUseCase verifyDepositUseCase;
     private final GetWalletByIdUseCase getWalletByIdUseCase;
     private final CheckBalanceUseCase checkBalanceUseCase;
+    private final GetAllWalletTransactionsUseCase getAllWalletTransactionsUseCase;
     private final WalletRestMapper walletRestMapper;
 
     @PostMapping("/wallet/deposit")
-    //@PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deposit(@RequestBody @Valid final InitialisePaymentRequest initialisePaymentRequest) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(depositUseCase.deposit(initialisePaymentRequest), true));
@@ -56,5 +58,13 @@ public class WalletRestAdapter {
     public ResponseEntity<?> getBalance(@PathVariable Long id) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(checkBalanceUseCase.checkBalance(id), true));
+    }
+
+    @GetMapping("/wallet/transactions/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getAllWalletTransactions(@PathVariable Long id) {
+        List<Transaction> allWalletTransactions = getAllWalletTransactionsUseCase.getAllWalletTransactions(id);
+        return ResponseEntity.status(OK)
+                .body(new ApiResponse(allWalletTransactions.stream().map(walletRestMapper::mapTransactionToTransactionResponse).toList(), true));
     }
 }

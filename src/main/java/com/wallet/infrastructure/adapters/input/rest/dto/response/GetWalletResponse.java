@@ -6,7 +6,9 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -14,7 +16,7 @@ import java.util.Set;
 public class GetWalletResponse {
     private Long walletId;
     private BigDecimal balance;
-    private Set<Transaction> transactions = new HashSet<>();
+    private List<Transaction> transactions = new ArrayList<>();
     private LocalDateTime timeCreated;
     private LocalDateTime timeUpdated;
 }

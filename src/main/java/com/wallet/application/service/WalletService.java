@@ -45,27 +45,9 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
                         String.format("Wallet with id %d not found", id)));
     }
 
-//    @Override
-//    public Transaction deposit(Deposit deposit)  {
-//        try {
-//            PaymentVerificationResponsechanged response = null;
-//            System.out.println(response.getData().getStatus());
-//        } catch (Exception exception) {
-//            throw new RuntimeException(exception);
-//        }
-//
-//        Wallet wallet = getWalletById(deposit.getWalletId());
-//        wallet.setBalance(wallet.getBalance().add(deposit.getAmount()));
-//        Transaction transaction = createTransaction(deposit);
-//        Transaction newTransaction =  transactionService.createTransaction(transaction);
-//        wallet.getTransactions().add(newTransaction);
-//        walletOutputPort.save(wallet);
-//        return newTransaction;
-//    }
-
     @Override
     public InitialisePaymentResponse deposit(InitialisePaymentRequest initialisePaymentRequest) {
-        //userService.getUserByEmail(initialisePaymentRequest.getEmail());
+        userService.getUserByEmail(initialisePaymentRequest.getEmail());
         InitialisePaymentResponse response = paystackService.initialisePayment(
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount());
 
@@ -85,16 +67,17 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
         Wallet wallet = getWalletById(user.getWallet().getWalletId());
         wallet.setBalance(wallet.getBalance().add(amount));
-        Transaction transaction = createTransaction(response);
+        Transaction transaction = createTransaction(response, wallet);
         wallet.getTransactions().add(transaction);
         walletOutputPort.save(wallet);
         return transaction;
     }
 
-    private Transaction createTransaction(VerifyPaymentResponse verifyPaymentResponse) {
-        Transaction transaction =  Transaction.builder()
+    private Transaction createTransaction(VerifyPaymentResponse verifyPaymentResponse, Wallet wallet) {
+        Transaction transaction = Transaction.builder()
                 .amount(verifyPaymentResponse.getData().getAmount())
                 .transactionType(CREDIT)
+//                .wallet(wallet)
                 .build();
         return transactionService.createTransaction(transaction);
     }
@@ -106,7 +89,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     }
 
     @Override
-    public Set<Transaction> getAllWalletTransactions(Long id) {
+    public List<Transaction> getAllWalletTransactions(Long id) {
         Wallet wallet = getWalletById(id);
         return wallet.getTransactions();
     }
@@ -126,5 +109,9 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
 
     // getall waletts,
     // transfer
-    // get wallet
+
+    public static void main(String[] args) {
+        TransactionType transactionType = TransactionType.valueOf("DEBIT");
+        System.out.println(transactionType);
+    }
 }

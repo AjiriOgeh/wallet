@@ -129,6 +129,10 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         return roles.get(role).toRepresentation();
     }
 
+    // forgot password;
+    // update user
+    // send verification email
+
 }
 
 

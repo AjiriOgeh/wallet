@@ -9,7 +9,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.time.LocalDateTime.now;
@@ -27,8 +29,8 @@ public class WalletEntity {
     @GeneratedValue
     private Long walletId;
     private BigDecimal balance = BigDecimal.ZERO;
-    @OneToMany(fetch = FetchType.EAGER)
-    private Set<TransactionEntity> transactions = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TransactionEntity> transactions = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

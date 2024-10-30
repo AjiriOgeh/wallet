@@ -86,4 +86,7 @@ public class UserService implements SignUpUseCase, UserLoginUseCase, UpdateUserU
         authService.deleteUserRepresentation(user.getEmail());
         userOutputPort.delete(user);
     }
+
+    // forgot password;
+    // send verification email
 }
