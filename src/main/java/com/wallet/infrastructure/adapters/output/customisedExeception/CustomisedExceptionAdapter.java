@@ -1,7 +1,6 @@
 package com.wallet.infrastructure.adapters.output.customisedExeception;
 
-import com.wallet.domain.exception.UserNotFoundException;
-import com.wallet.domain.exception.WalletNotFoundException;
+import com.wallet.domain.exception.*;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,9 +33,39 @@ public class CustomisedExceptionAdapter {
                 .body(new ApiResponse(exception.getMessage(), false));
     }
 
+    @ExceptionHandler(AuthUserCreationException.class)
+    public final ResponseEntity<?> handleAuthUserCreationException(AuthUserCreationException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ApiResponse(exception.getMessage(),false));
+    }
+
+    @ExceptionHandler(ExternalApiException.class)
+    public final ResponseEntity<?> handleExternalApiException(ExternalApiException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ApiResponse(exception.getMessage(), false));
+    }
+
+    @ExceptionHandler(InvalidUserCredentialsException.class)
+    public final ResponseEntity<?> handleInvalidUserCredentialsException(InvalidUserCredentialsException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ApiResponse(exception.getMessage(), false));
+    }
+
+    @ExceptionHandler(TransactionNotFoundException.class)
+    public final ResponseEntity<?> handleTransactionNotFoundException(TransactionNotFoundException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ApiResponse(exception.getMessage(), false));
+    }
+
+    @ExceptionHandler(UserExistsException.class)
+    public final ResponseEntity<?> handleUserExistsException(UserExistsException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ApiResponse(exception.getMessage(), false));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> handleUniqueConstraintViolation(DataIntegrityViolationException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    public ResponseEntity<String> handleUniqueConstraintViolation(DataIntegrityViolationException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

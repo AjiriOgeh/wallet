@@ -6,6 +6,7 @@ import lombok.*;
 @Getter
 public class SignUpResponse {
     private Long userId;
+    private String keycloakId;
     private String firstname;
     private String lastname;
     private String email;

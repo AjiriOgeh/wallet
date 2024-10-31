@@ -9,7 +9,9 @@ import com.wallet.infrastructure.adapters.output.persistence.mapper.TransactionP
 import com.wallet.infrastructure.adapters.output.persistence.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class TransactionPersistenceAdapter implements TransactionOutputPort {
@@ -22,8 +24,8 @@ public class TransactionPersistenceAdapter implements TransactionOutputPort {
         TransactionEntity transactionEntity = transactionPersistenceMapper.mapTransactionToTransactionEntity(transaction);
         TransactionEntity savedTransactionEntity = transactionRepository.save(transactionEntity);
         return transactionPersistenceMapper.mapTransactionEntityToTransaction(savedTransactionEntity);
-
     }
+
 
     @Override
     public List<Transaction> getAllTransactions() {
@@ -36,5 +38,20 @@ public class TransactionPersistenceAdapter implements TransactionOutputPort {
         List<TransactionEntity> transactionEntities = transactionRepository.
                 findTransactionEntitiesByTransactionStatus(transactionStatus);
         return transactionEntities.stream().map(transactionPersistenceMapper::mapTransactionEntityToTransaction).toList();
+    }
+
+    @Override
+    public List<Transaction> findTransactionsByByDate(LocalDateTime localDateTime) {
+        List<TransactionEntity> transactionEntities = transactionRepository.
+                findTransactionEntitiesByDate(localDateTime);
+        return transactionEntities.stream().map(transactionPersistenceMapper::mapTransactionEntityToTransaction).toList();
+    }
+
+    @Override
+    public Optional<Transaction> findById(Long id) {
+        Optional<TransactionEntity> transactionEntity = transactionRepository.findById(id);
+        if(transactionEntity.isEmpty()) return Optional.empty();
+        Transaction transaction = transactionPersistenceMapper.mapTransactionEntityToTransaction(transactionEntity.get());
+        return Optional.of(transaction);
     }
 }

@@ -52,7 +52,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()); // make sure you mutilpy
 
         if (!response.getMessage().equals("Authorization URL created")) {
-            throw new RuntimeException("jkjjlkjjlkj");
+            throw new RuntimeException("Invalid deposit details"); //jjoijoij
         }
         return response;
     }
@@ -61,7 +61,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     public Transaction verifyDeposit(String reference) {
         VerifyPaymentResponse response = paystackService.verifyPayment(reference);
         if(!response.getData().getStatus().equals("success")) {
-            throw new RuntimeException("");
+            throw new RuntimeException("Failed to verify payment"); /// jlkjlpopipo
         }
         BigDecimal amount = response.getData().getAmount();
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
@@ -84,9 +84,8 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     }
 
     @Override
-    public BigDecimal checkBalance(Long id) {
-        Wallet wallet = getWalletById(id);
-        return wallet.getBalance();
+    public Wallet checkBalance(Long id) {
+        return getWalletById(id);
     }
 
     @Override
@@ -100,7 +99,6 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
             GetWalletTransactionsByDateRequest getWalletTransactionsByDateRequest) {
         List<Transaction> transactions = new ArrayList<>();
         Wallet wallet = getWalletById(getWalletTransactionsByDateRequest.getId());
-        System.out.println(wallet.getTransactions());
         for (Transaction transaction : wallet.getTransactions()){
             if (transaction.getDate().isEqual(getWalletTransactionsByDateRequest.getDate())) {
                 transactions.add(transaction);

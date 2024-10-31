@@ -48,6 +48,6 @@ public class PaystackServiceTest {
 
     @Test
     public void verifyNonExistentReference_ThrowsExceptionTest() {
-        assertThrows(UserNotFoundException.class ,() -> paystackService.verifyPayment("non existent reference"));
+        assertThrows(UserNotFoundException.class, ()-> paystackService.verifyPayment("non existent reference"));
     }
 }

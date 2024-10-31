@@ -57,8 +57,9 @@ public class WalletRestAdapter {
     @GetMapping("/wallet/balance/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getBalance(@PathVariable final Long id) {
+        Wallet wallet = checkBalanceUseCase.checkBalance(id);
         return ResponseEntity.status(OK)
-                .body(new ApiResponse(checkBalanceUseCase.checkBalance(id), true));
+                .body(new ApiResponse(walletRestMapper.mapWalletToGetBalanceResponse(wallet), true));
     }
 
     @GetMapping("/wallet/transactions/{id}")

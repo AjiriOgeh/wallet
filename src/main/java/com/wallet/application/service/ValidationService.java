@@ -2,8 +2,9 @@ package com.wallet.application.service;
 
 import com.wallet.application.port.input.validationServiceUsesCases.ValidateBankVerificationNumberUseCase;
 import com.wallet.application.port.input.validationServiceUsesCases.ValidatePhoneNumberUseCase;
+import com.wallet.domain.exception.ExternalApiException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
-import com.wallet.domain.model.Validation;
+import com.wallet.infrastructure.adapters.input.rest.dto.response.validationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -23,7 +24,7 @@ public class ValidationService implements ValidatePhoneNumberUseCase, ValidateBa
     private String premblySecretKey;
 
     @Override
-    public Validation validatePhoneNumber(String phoneNumber) {
+    public validationResponse validatePhoneNumber(String phoneNumber) {
         return webClient.post()
                 .uri(PREMBLY_PHONE_NUMBER_VERIFICATION_URL)
                 .header("Accept", "application/json")
@@ -34,16 +35,17 @@ public class ValidationService implements ValidatePhoneNumberUseCase, ValidateBa
                 .bodyValue("{\"number\":\"" + phoneNumber + "\"}")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
-                    Mono.error(new InvalidUserCredentialsException("Invalid phone number"))
+                    Mono.error(new InvalidUserCredentialsException(
+                            String.format("Phone number %s is invalid", phoneNumber)))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->
-                    Mono.error(new RuntimeException("Prembly is unable to validate phone number due to server error"))
+                    Mono.error(new ExternalApiException("Prembly is unable to validate phone number due to server error"))
                 )
-                .bodyToMono(Validation.class).block();
+                .bodyToMono(validationResponse.class).block();
     }
 
     @Override
-    public Validation validateBankVerificationNumber(String bankVerificationNumber) {
+    public validationResponse validateBankVerificationNumber(String bankVerificationNumber) {
         return webClient.post()
                 .uri(PREMBLY_BANK_VERIFICATION_NUMBER_VERIFICATION_URL)
                 .header("Accept", "application/json")
@@ -54,12 +56,13 @@ public class ValidationService implements ValidatePhoneNumberUseCase, ValidateBa
                 .bodyValue("{\"number\":\"" + bankVerificationNumber + "\"}")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        Mono.error(new InvalidUserCredentialsException("Invalid bank verification number")) //// change
+                        Mono.error(new InvalidUserCredentialsException(
+                                String.format("Bank verification number %s is invalid", bankVerificationNumber)))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->
-                        Mono.error(new RuntimeException("Prembly is unable to validate bank verification number due to server error"))
+                        Mono.error(new ExternalApiException("Prembly is unable to validate bank verification number due to server error"))
                 )
-                .bodyToMono(Validation.class).block();
+                .bodyToMono(validationResponse.class).block();
     }
 }
 

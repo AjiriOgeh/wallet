@@ -12,6 +12,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.time.LocalDateTime.now;
 
 @Setter
@@ -24,8 +25,9 @@ import static java.time.LocalDateTime.now;
 @ToString
 public class TransactionEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long transactionId;
+    private String keyCloakId;
     private BigDecimal amount = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;

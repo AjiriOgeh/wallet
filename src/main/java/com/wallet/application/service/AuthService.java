@@ -5,6 +5,7 @@ import com.wallet.application.port.input.authServiceUseCases.DeleteUserRepresent
 import com.wallet.application.port.input.authServiceUseCases.EditUserRepresentationUseCase;
 import com.wallet.application.port.input.authServiceUseCases.LoginUserRepresentationUseCase;
 import com.wallet.domain.exception.AuthUserCreationException;
+import com.wallet.domain.exception.ExternalApiException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
 import com.wallet.domain.model.AuthToken;
 import com.wallet.domain.model.User;
@@ -50,7 +51,7 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
 
 
     @Override
-    public void createUserRepresentation(User user) {
+    public Response createUserRepresentation(User user) {
         UserRepresentation userRepresentation = createAuthUser(user);
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setValue(user.getPassword());
@@ -65,6 +66,7 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         UserResource userResource = getUsersResource().get(userId);
         userResource.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
+        return response;
     }
 
     @NotNull
@@ -83,8 +85,8 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         return keycloak.realm(realm).users();
     }
 
-    private void sendVerificationEmail(String userId) {
-        getUsersResource().get(userId).sendVerifyEmail();
+    private void sendVerificationEmail(String keycloakId) {
+        getUsersResource().get(keycloakId).sendVerifyEmail();
     }
 
     @Override
@@ -119,7 +121,7 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
                     Mono.error(new InvalidUserCredentialsException("Invalid user credentials"))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->
-                    Mono.error(new RuntimeException("Keycloak is unable to authenticate user due to server error"))
+                    Mono.error(new ExternalApiException("Keycloak is unable to authenticate user due to server error"))
                 )
                 .bodyToMono(AuthToken.class).block();
     }

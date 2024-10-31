@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.time.LocalDateTime.now;
 
 @Setter
@@ -20,8 +21,9 @@ import static java.time.LocalDateTime.now;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long userId;
+    private String keycloakId;
     private String firstname;
     private String lastname;
     @Column(unique = true)

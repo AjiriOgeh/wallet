@@ -2,7 +2,6 @@ package com.wallet.infrastructure.adapters.config;
 
 import com.wallet.application.port.output.TransactionOutputPort;
 import com.wallet.application.service.*;
-import com.wallet.domain.model.User;
 import com.wallet.infrastructure.adapters.output.persistence.TransactionPersistenceAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.UserPersistenceAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.WalletPersistenceAdapter;

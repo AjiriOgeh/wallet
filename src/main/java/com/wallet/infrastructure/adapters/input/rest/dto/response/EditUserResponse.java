@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class EditUserResponse {
     private String userId;
+    private String keycloakId;
     private String firstname;
     private String lastname;
     private String email;

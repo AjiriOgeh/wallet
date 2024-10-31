@@ -18,6 +18,7 @@ public interface UserRestMapper {
     User mapSignUpRequestToUser(SignupRequest signupRequest);
     @Mapping(source = "wallet.walletId", target = "walletId")
     SignUpResponse mapUserToSignUpResponse(User user);
+
     User mapEditUserRequestToUser(EditUserRequest editUserRequest);
     EditUserResponse mapUserToEditUserResponse(User editedUser);
     GetUserResponse mapUserToGetUserResponse(User user);

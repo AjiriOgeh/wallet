@@ -1,7 +1,9 @@
 package com.wallet.application.port.input.walletServiceUseCases;
 
+import com.wallet.domain.model.Wallet;
+
 import java.math.BigDecimal;
 
 public interface CheckBalanceUseCase {
-    BigDecimal checkBalance(Long id);
+    Wallet checkBalance(Long id);
 }

@@ -1,5 +1,6 @@
 package com.wallet.infrastructure.adapters.input.rest.dto.request;
 
+import com.wallet.domain.model.Role;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -10,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class SignupRequest {
     @NotNull(message = "Firstname cannot be null")
-    //@NotBlank(message = "Firstname ")
     @Size(min = 2, message = "Firstname must be at least 2 characters")
     private String firstname;
     @NotNull(message = "Lastname cannot be null")
@@ -30,4 +30,6 @@ public class SignupRequest {
     @Size(min = 11, max = 11, message = "Bank verification number must be 11 digits")
     @Pattern(regexp = "\\d+", message = "Bank verification number must contain only numeric characters")
     private String bankVerificationNumber;
+//    @NotNull(message = "Role cannot be null")
+    private Role role;
 }

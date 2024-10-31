@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -41,7 +42,7 @@ public class UserRestAdapter {
         User user =  userRestMapper.mapSignUpRequestToUser(signupRequest);
         User newUser = signUpUseCase.signUp(user);
         log.info("New User -> {}", newUser);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(CREATED)
                 .body(new ApiResponse(userRestMapper.mapUserToSignUpResponse(newUser), true));
     }
 
@@ -69,7 +70,7 @@ public class UserRestAdapter {
                 .body(new ApiResponse(userRestMapper.mapUserToGetUserResponse(user), true));
     }
 
-    @GetMapping
+    @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
         List<User> users = getAllUsersUseCase.getAllUsers();
