@@ -7,33 +7,41 @@ import com.wallet.domain.exception.UserNotFoundException;
 import com.wallet.domain.model.AuthToken;
 import com.wallet.domain.model.AuthUser;
 import com.wallet.domain.model.User;
-import com.wallet.domain.model.Wallet;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
-public class UserService implements SignUpUseCase, UserLoginUseCase, UpdateUserUseCase,
+public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLoginUseCase, UpdateUserUseCase,
         GetUserByIdUseCase, GetUserByEmailUseCase, GetAllUsersUseCase, DeleteUserUseCase {
 
     private final UserOutputPort userOutputPort;
+    private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
     private final AuthService authService;
     private final ValidationService validationService;
+
+
 
     @Override
     public User signUp(User user) {
         validateUniqueFields(user);
         verifyUserIdentity(user);
         AuthUser authUser = mapUserToAuthUser(user);
+        log.info("new user -> {}", user.getPassword());
         User newUser = userOutputPort.save(user);
-        Response response = authService.createUserRepresentation(user);
+        Response response = authService.createUserRepresentation(authUser);
+        log.info("new user -> {}", newUser);
         String keyCloakId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         newUser.setWallet(walletService.createWallet());
         newUser.setKeycloakId(keyCloakId);
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         return userOutputPort.save(newUser);
     }
 
@@ -43,8 +51,15 @@ public class UserService implements SignUpUseCase, UserLoginUseCase, UpdateUserU
                 .lastname(user.getLastname())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .role(null)
                 .build();
+    }
+
+    @Override
+    public AuthUser signUpAdmin(AuthUser authUser) {
+        Response response = authService.createUserRepresentation(authUser);
+        String keyCloakId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+        authUser.setKeycloakId(keyCloakId);
+        return authUser;
     }
 
     private void verifyUserIdentity(User user) {

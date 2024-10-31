@@ -36,7 +36,7 @@ public class TransactionRestAdapter {
     private final TransactionRestMapper transactionRestMapper;
 
     @GetMapping("/transactions/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getTransactionById(@PathVariable Long id) {
         Transaction transaction = getTransactionByIdUseCase.getTransactionById(id);
         return ResponseEntity.status(OK)

@@ -8,6 +8,7 @@ import com.wallet.domain.exception.AuthUserCreationException;
 import com.wallet.domain.exception.ExternalApiException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
 import com.wallet.domain.model.AuthToken;
+import com.wallet.domain.model.AuthUser;
 import com.wallet.domain.model.User;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -51,31 +52,39 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
 
 
     @Override
-    public Response createUserRepresentation(User user) {
-        UserRepresentation userRepresentation = createAuthUser(user);
-        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setValue(user.getPassword());
-        credentialRepresentation.setType(PASSWORD);
-        userRepresentation.setCredentials(List.of(credentialRepresentation));
-
+    public Response createUserRepresentation(AuthUser authUser) {
+        UserRepresentation userRepresentation = createAuthUser(authUser);
+        setAuthUserCredentials(authUser, userRepresentation);
         Response response = getUsersResource().create(userRepresentation);
         if (response.getStatus() != 201) {
             throw new AuthUserCreationException("User cannot be created");
         }
-        RoleRepresentation roleRepresentation = assignRoleToUserRepresentation("USER");
-        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-        UserResource userResource = getUsersResource().get(userId);
-        userResource.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
+        setAuthUserRole(authUser, response);
         return response;
     }
 
+    private void setAuthUserRole(AuthUser authUser, Response response) {
+        String role = authUser.getRole() != null ? String.valueOf(authUser.getRole()) : "USER";
+        RoleRepresentation roleRepresentation = assignRoleToUserRepresentation(role.toUpperCase());
+        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+        UserResource userResource = getUsersResource().get(userId);
+        userResource.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
+    }
+
+    private static void setAuthUserCredentials(AuthUser authUser, UserRepresentation userRepresentation) {
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setValue(authUser.getPassword());
+        credentialRepresentation.setType(PASSWORD);
+        userRepresentation.setCredentials(List.of(credentialRepresentation));
+    }
+
     @NotNull
-    private static UserRepresentation createAuthUser(User user) {
+    private static UserRepresentation createAuthUser(AuthUser authUser) {
         UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setFirstName(user.getFirstname());
-        userRepresentation.setLastName(user.getLastname());
-        userRepresentation.setUsername(user.getEmail());
-        userRepresentation.setEmail(user.getEmail());
+        userRepresentation.setFirstName(authUser.getFirstname());
+        userRepresentation.setLastName(authUser.getLastname());
+        userRepresentation.setUsername(authUser.getEmail());
+        userRepresentation.setEmail(authUser.getEmail());
         userRepresentation.setEmailVerified(false);
         userRepresentation.setEnabled(true);
         return userRepresentation;
@@ -130,11 +139,5 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         RolesResource roles = keycloak.realm(realm).roles();
         return roles.get(role).toRepresentation();
     }
-
-    // forgot password;
-    // update user
-    // send verification email
-
 }
-
 

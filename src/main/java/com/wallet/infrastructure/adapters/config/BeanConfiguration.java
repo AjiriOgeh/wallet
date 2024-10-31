@@ -15,14 +15,16 @@ import com.wallet.infrastructure.adapters.output.persistence.repository.WalletRe
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class BeanConfiguration {
 
     @Bean
-    public UserService userService(final UserPersistenceAdapter userPersistenceAdapter, final WalletService walletService, final AuthService authService, final ValidationService validationService) {
-        return new UserService(userPersistenceAdapter, walletService, authService, validationService);
+    public UserService userService(final UserPersistenceAdapter userPersistenceAdapter, final PasswordEncoder passwordEncoder, final WalletService walletService, final AuthService authService, final ValidationService validationService) {
+        return new UserService(userPersistenceAdapter, passwordEncoder, walletService, authService, validationService);
     }
 
     @Bean
@@ -58,6 +60,11 @@ public class BeanConfiguration {
     @Bean
     public AuthService authService(final Keycloak keycloak, final WebClient webClient) {
         return new AuthService(keycloak, webClient);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

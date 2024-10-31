@@ -30,6 +30,4 @@ public class SignupRequest {
     @Size(min = 11, max = 11, message = "Bank verification number must be 11 digits")
     @Pattern(regexp = "\\d+", message = "Bank verification number must contain only numeric characters")
     private String bankVerificationNumber;
-//    @NotNull(message = "Role cannot be null")
-    private Role role;
 }

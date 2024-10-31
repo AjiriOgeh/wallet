@@ -1,10 +1,12 @@
 package com.wallet.infrastructure.adapters.input.rest;
 
 import com.wallet.application.port.input.userServiceUseCases.*;
+import com.wallet.domain.model.AuthUser;
 import com.wallet.domain.model.User;
 import com.wallet.domain.model.AuthToken;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.EditUserRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.LoginRequest;
+import com.wallet.infrastructure.adapters.input.rest.dto.request.SignupAdminRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.SignupRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.ApiResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.GetUserResponse;
@@ -30,6 +32,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class UserRestAdapter {
 
     private final SignUpUseCase signUpUseCase;
+    private final SignUpAdminUseCase signUpAdminUseCase;
     private final UserLoginUseCase userLoginUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
@@ -44,6 +47,14 @@ public class UserRestAdapter {
         log.info("New User -> {}", newUser);
         return ResponseEntity.status(CREATED)
                 .body(new ApiResponse(userRestMapper.mapUserToSignUpResponse(newUser), true));
+    }
+
+    @PostMapping("/users/admin")
+    public ResponseEntity<?> signupAdmin(@RequestBody @Valid final SignupAdminRequest signupAdminRequest) {
+        AuthUser authUser = userRestMapper.mapSignupAdminRequestToAuthUser(signupAdminRequest);
+        AuthUser newAuthUser = signUpAdminUseCase.signUpAdmin(authUser);
+        return ResponseEntity.status(CREATED)
+                .body(new ApiResponse(userRestMapper.mapAuthUserToSignUpAdminResponse(newAuthUser), true));
     }
 
     @PostMapping("/users/login")

@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthUser {
+    private String keycloakId;
     private String firstname;
     private String lastname;
     private String email;
