@@ -23,28 +23,28 @@ public class UserServiceTest {
     @Test
     public void userSignUpTest() {
         User user = User.builder()
-                .firstname("daffy")
-                .lastname("duck")
-                .email("daffyduck@gmail.com")
-                .password("daffyduck123.")
-                .phoneNumber("08034567890")
-                .bankVerificationNumber("34567890123")
+                .firstname("max")
+                .lastname("young")
+                .email("maxyoung@gmail.com")
+                .password("password123.")
+                .phoneNumber("08078901234")
+                .bankVerificationNumber("78901234507")
                 .build();
         User newUser = userService.signUp(user);
 
         assertThat(newUser).isNotNull();
         assertThat(newUser.getWallet()).isNotNull();
-        assertEquals("daffyduck@gmail.com", newUser.getEmail());
+        assertEquals("maxyoung@gmail.com", newUser.getEmail());
     }
 
     @Test
     public void userSignsUp_withExistingEmail_throwsExceptionTest() {
         User user = User.builder()
-                .firstname("bugs")
-                .lastname("bunny")
-                .email("bugsbunny@gmail.com")
-                .password("bugsbunny123.")
-                .phoneNumber("08012345678")
+                .firstname("alexander")
+                .lastname("hunter")
+                .email("alexhunt@gmail.com")
+                .password("password123.")
+                .phoneNumber("08089012345")
                 .bankVerificationNumber("12345678901")
                 .build();
 
@@ -56,8 +56,8 @@ public class UserServiceTest {
         User user = User.builder()
                 .userId(100L)
                 .firstname(null)
-                .lastname("carrots")
-                .email("bugssssbunny@gmail.com")
+                .lastname("hunt-parker")
+                .email("alexhunt@gmail.com")
                 .password(null)
                 .phoneNumber(null)
                 .bankVerificationNumber(null)
@@ -76,8 +76,8 @@ public class UserServiceTest {
         User user = User.builder()
                 .userId(100L)
                 .firstname(null)
-                .lastname("pig")
-                .email("porkypig@gmail.com")
+                .lastname("hunt-parker")
+                .email("alexhunt@gmail.com")
                 .password(null)
                 .phoneNumber(null)
                 .bankVerificationNumber(null)
@@ -92,27 +92,28 @@ public class UserServiceTest {
 
         assertThat(user).isNotNull();
         assertEquals(100L, user.getUserId());
-        assertEquals("bugsbunny@gmail.com", user.getEmail());
+        assertEquals("alex", user.getFirstname());
+        assertEquals("alexhunt@gmail.com", user.getEmail());
     }
 
     @Test
     public void getNonExistentUser_throwsExceptionTest() {
-        assertThrows(UserNotFoundException.class, ()-> userService.getUserById(102L));
+        assertThrows(UserNotFoundException.class, ()-> userService.getUserById(34567L));
     }
 
     @Test
     public void deleteUserByIdTest() {
-        userService.deleteUser(101L);
+        userService.deleteUser(104L);
 
         try {
-            userService.getUserById(101L);
+            userService.getUserById(104L);
         } catch (UserNotFoundException exception) {
-            assertEquals("User with id 101 not found", exception.getMessage());
+            assertEquals("User with id 104 not found", exception.getMessage());
         }
     }
 
     @Test
     public void deleteNonExistentUserTest_throwsExceptionTest() {
-        assertThrows(UserNotFoundException.class, ()-> userService.deleteUser(102L));
+        assertThrows(UserNotFoundException.class, ()-> userService.deleteUser(34567L));
     }
 }

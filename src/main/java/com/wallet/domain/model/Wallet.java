@@ -14,7 +14,6 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class Wallet {
     private Long walletId;
     private BigDecimal balance = BigDecimal.ZERO;

@@ -3,6 +3,7 @@ package com.wallet.application.service;
 import com.wallet.application.port.input.paystackUseCases.InitialisePaymentUseCase;
 import com.wallet.application.port.input.paystackUseCases.VerifyPaymentUseCase;
 import com.wallet.domain.exception.ExternalApiException;
+import com.wallet.domain.exception.InvalidPaymentReferenceException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.InitialisePaymentResponse;
@@ -44,7 +45,6 @@ public class PaystackService implements InitialisePaymentUseCase, VerifyPaymentU
                         Mono.error(new ExternalApiException("Paystack is unable to initialise payment due to server error"))
                 )
                 .bodyToMono(InitialisePaymentResponse.class).block();
-        log.info("payment response -> {}", response);
         return response;
     }
 
@@ -56,13 +56,12 @@ public class PaystackService implements InitialisePaymentUseCase, VerifyPaymentU
                 .header("Authorization", "Bearer " + paystackSecretKey)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, errorResponse ->
-                        Mono.error(new InvalidUserCredentialsException("Invalid payment reference"))
+                        Mono.error(new InvalidPaymentReferenceException("Invalid payment reference"))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, errorResponse ->
                         Mono.error(new ExternalApiException("Paystack is unable to verify payment due to server error"))
                 )
                 .bodyToMono(VerifyPaymentResponse.class).block();
-        log.info("payment response -> {}", response);
         return response;
     }
 }

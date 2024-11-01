@@ -53,17 +53,8 @@ public class UserPersistenceAdapter implements UserOutputPort {
     }
 
     @Override
-    public Optional<User> findByBankVerificationNumber(String bankVerificationNumber) {
-        Optional<UserEntity> userEntity = userRepository.findByBankVerificationNumber(bankVerificationNumber);
-        if(userEntity.isEmpty()) return Optional.empty();
-        User user = userPersistenceMapper.mapUserEntityToUser(userEntity.get());
-        return Optional.of(user);
-    }
-
-    @Override
     public List<User> getAllUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
         return userEntities.stream().map(userPersistenceMapper::mapUserEntityToUser).toList();
-
     }
 }

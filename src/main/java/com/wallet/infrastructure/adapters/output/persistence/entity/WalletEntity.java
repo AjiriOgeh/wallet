@@ -24,13 +24,12 @@ import static java.time.LocalDateTime.now;
 @NoArgsConstructor
 @Entity
 @Table(name = "wallets")
-@ToString
 public class WalletEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long walletId;
     private BigDecimal balance = BigDecimal.ZERO;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TransactionEntity> transactions = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

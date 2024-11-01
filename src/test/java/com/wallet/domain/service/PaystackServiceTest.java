@@ -1,6 +1,7 @@
 package com.wallet.domain.service;
 
 import com.wallet.application.service.PaystackService;
+import com.wallet.domain.exception.InvalidPaymentReferenceException;
 import com.wallet.domain.exception.UserNotFoundException;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.InitialisePaymentResponse;
@@ -48,6 +49,6 @@ public class PaystackServiceTest {
 
     @Test
     public void verifyNonExistentReference_ThrowsExceptionTest() {
-        assertThrows(UserNotFoundException.class, ()-> paystackService.verifyPayment("non existent reference"));
+        assertThrows(InvalidPaymentReferenceException.class, ()-> paystackService.verifyPayment("non existent reference"));
     }
 }

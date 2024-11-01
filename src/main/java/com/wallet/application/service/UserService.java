@@ -7,6 +7,7 @@ import com.wallet.domain.exception.UserNotFoundException;
 import com.wallet.domain.model.AuthToken;
 import com.wallet.domain.model.AuthUser;
 import com.wallet.domain.model.User;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +31,15 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
 
 
     @Override
+    @Transactional
     public User signUp(User user) {
         validateUniqueFields(user);
         verifyUserIdentity(user);
         AuthUser authUser = mapUserToAuthUser(user);
-        log.info("new user -> {}", user.getPassword());
+        //log.info("new user -> {}", user.getPassword());
         User newUser = userOutputPort.save(user);
         Response response = authService.createUserRepresentation(authUser);
-        log.info("new user -> {}", newUser);
+        //log.info("new user -> {}", newUser);
         String keyCloakId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         newUser.setWallet(walletService.createWallet());
         newUser.setKeycloakId(keyCloakId);
@@ -70,7 +72,6 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
     private void validateUniqueFields(User user) {
         validateEmail(user);
         validatePhoneNumber(user);
-        validateBankVerificationNumber(user);
     }
 
     private void validateEmail(User user) {
@@ -89,16 +90,6 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
         }
     }
 
-    private void validateBankVerificationNumber(User user) {
-        Optional<User> existingUser = userOutputPort.
-                findByBankVerificationNumber(user.getBankVerificationNumber());
-        if (existingUser.isPresent()) {
-            throw new UserExistsException(
-                    String.format("User with bank verification number %s exists",
-                            user.getBankVerificationNumber()));
-        }
-    }
-
     @Override
     public AuthToken login(String email, String password) {
         return authService.login(email, password);
@@ -113,11 +104,6 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
             validatePhoneNumber(user);
             validationService.validatePhoneNumber(user.getPhoneNumber());
         }
-        if (!existingUser.getBankVerificationNumber().equals(user.getBankVerificationNumber())
-                && user.getBankVerificationNumber() != null) {
-            validateBankVerificationNumber(user);
-            validationService.validateBankVerificationNumber(user.getBankVerificationNumber());
-        }
         updateUserFields(user, existingUser);
         authService.editUserRepresentation(existingUser.getEmail(), user);
         return userOutputPort.save(existingUser);
@@ -127,7 +113,6 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
         if (user.getFirstname() != null) existingUser.setFirstname(user.getFirstname());
         if (user.getLastname() != null) existingUser.setLastname(user.getLastname());
         if (user.getPhoneNumber() != null) existingUser.setPhoneNumber(user.getPhoneNumber());
-        if (user.getBankVerificationNumber() != null) existingUser.setBankVerificationNumber(user.getBankVerificationNumber());
     }
 
     @Override

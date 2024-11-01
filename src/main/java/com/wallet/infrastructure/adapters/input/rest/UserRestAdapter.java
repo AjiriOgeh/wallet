@@ -44,7 +44,7 @@ public class UserRestAdapter {
     public ResponseEntity<?> signUp(@RequestBody @Valid final SignupRequest signupRequest) {
         User user =  userRestMapper.mapSignUpRequestToUser(signupRequest);
         User newUser = signUpUseCase.signUp(user);
-        log.info("New User -> {}", newUser);
+//        log.info("New User -> {}", newUser);
         return ResponseEntity.status(CREATED)
                 .body(new ApiResponse(userRestMapper.mapUserToSignUpResponse(newUser), true));
     }

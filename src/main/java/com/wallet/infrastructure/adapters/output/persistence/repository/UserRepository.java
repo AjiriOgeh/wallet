@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query("SELECT u FROM UserEntity u WHERE u.phoneNumber=:phoneNumber")
     Optional<UserEntity> findByPhoneNumber(String phoneNumber);
 
-    @Query("SELECT u FROM UserEntity u WHERE u.bankVerificationNumber=:bankVerificationNumber")
-    Optional<UserEntity> findByBankVerificationNumber(String bankVerificationNumber);
+//    @Query("SELECT u FROM UserEntity u WHERE u.bankVerificationNumber=:bankVerificationNumber")
+//    Optional<UserEntity> findByBankVerificationNumber(String bankVerificationNumber);
 }

@@ -7,7 +7,6 @@ import lombok.ToString;
 
 @Setter
 @Getter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class validationResponse {
     private boolean status;

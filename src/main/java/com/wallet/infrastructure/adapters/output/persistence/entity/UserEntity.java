@@ -31,8 +31,6 @@ public class UserEntity {
     private String password;
     @Column(unique = true)
     private String phoneNumber;
-    @Column(unique = true)
-    private String bankVerificationNumber;
     @OneToOne
     @JoinColumn(name = "wallet_entity_id")
     private WalletEntity walletEntity;
@@ -54,5 +52,4 @@ public class UserEntity {
     private void setTimeUpdated() {
         this.timeUpdated = now();
     }
-
 }

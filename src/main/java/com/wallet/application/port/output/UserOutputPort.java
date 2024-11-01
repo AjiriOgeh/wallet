@@ -16,7 +16,5 @@ public interface UserOutputPort {
 
     Optional<User> findByPhoneNumber(String phoneNumber);
 
-    Optional<User> findByBankVerificationNumber(String bankVerificationNumber);
-
     List<User> getAllUsers();
 }

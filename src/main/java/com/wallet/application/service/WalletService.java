@@ -53,7 +53,6 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         InitialisePaymentResponse response = paystackService.initialisePayment(
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()
                         .multiply(new BigDecimal(100)));
-
         if (!response.getMessage().equals("Authorization URL created")) {
             throw new DepositRequestException("Invalid deposit details");
         }
@@ -108,6 +107,4 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         }
         return transactions;
     }
-    // transfer
-    // paysatack payment in outpout
 }

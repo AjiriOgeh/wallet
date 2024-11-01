@@ -22,7 +22,6 @@ import static java.time.LocalDateTime.now;
 @NoArgsConstructor
 @Entity
 @Table(name = "transactions")
-@ToString
 public class TransactionEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
