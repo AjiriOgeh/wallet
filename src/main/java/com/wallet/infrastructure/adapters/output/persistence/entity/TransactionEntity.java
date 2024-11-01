@@ -27,7 +27,6 @@ public class TransactionEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long transactionId;
-    private String keyCloakId;
     private BigDecimal amount = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;

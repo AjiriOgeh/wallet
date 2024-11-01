@@ -63,21 +63,6 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         return response;
     }
 
-    private void setAuthUserRole(AuthUser authUser, Response response) {
-        String role = authUser.getRole() != null ? String.valueOf(authUser.getRole()) : "USER";
-        RoleRepresentation roleRepresentation = assignRoleToUserRepresentation(role.toUpperCase());
-        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-        UserResource userResource = getUsersResource().get(userId);
-        userResource.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
-    }
-
-    private static void setAuthUserCredentials(AuthUser authUser, UserRepresentation userRepresentation) {
-        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setValue(authUser.getPassword());
-        credentialRepresentation.setType(PASSWORD);
-        userRepresentation.setCredentials(List.of(credentialRepresentation));
-    }
-
     @NotNull
     private static UserRepresentation createAuthUser(AuthUser authUser) {
         UserRepresentation userRepresentation = new UserRepresentation();
@@ -90,12 +75,52 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         return userRepresentation;
     }
 
-    private UsersResource getUsersResource() {
-        return keycloak.realm(realm).users();
+    private void setAuthUserRole(AuthUser authUser, Response response) {
+        String role = authUser.getRole() != null ? String.valueOf(authUser.getRole()) : "USER";
+        RoleRepresentation roleRepresentation = assignRoleToUserRepresentation(role.toUpperCase());
+        String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+        UserResource userResource = getUsersResource().get(userId);
+        userResource.roles().realmLevel().add(Collections.singletonList(roleRepresentation));
+    }
+
+    private RoleRepresentation assignRoleToUserRepresentation(String role) {
+        RolesResource roles = keycloak.realm(realm).roles();
+        return roles.get(role).toRepresentation();
+    }
+
+    private static void setAuthUserCredentials(AuthUser authUser, UserRepresentation userRepresentation) {
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setValue(authUser.getPassword());
+        credentialRepresentation.setType(PASSWORD);
+        userRepresentation.setCredentials(List.of(credentialRepresentation));
     }
 
     private void sendVerificationEmail(String keycloakId) {
         getUsersResource().get(keycloakId).sendVerifyEmail();
+    }
+
+    private UsersResource getUsersResource() {
+        return keycloak.realm(realm).users();
+    }
+
+    @Override
+    public AuthToken login(String email, String password) {
+        return webClient.post()
+                .uri(AUTH_TOKEN_URL)
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .bodyValue("client_id=" + clientId +
+                        "&client_secret=" + clientSecret +
+                        "&grant_type=password" +
+                        "&username=" + email +
+                        "&password=" + password)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        Mono.error(new InvalidUserCredentialsException("Invalid user credentials"))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        Mono.error(new ExternalApiException("Keycloak is unable to authenticate user due to server error"))
+                )
+                .bodyToMono(AuthToken.class).block();
     }
 
     @Override
@@ -115,29 +140,5 @@ public class AuthService implements CreateUserRepresentationUseCase, EditUserRep
         getUsersResource().delete(userRepresentation.getId());
     }
 
-    @Override
-    public AuthToken login(String email, String password) {
-        return webClient.post()
-                .uri(AUTH_TOKEN_URL)
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .bodyValue("client_id=" + clientId +
-                        "&client_secret=" + clientSecret +
-                        "&grant_type=password" +
-                        "&username=" + email +
-                        "&password=" + password)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response ->
-                    Mono.error(new InvalidUserCredentialsException("Invalid user credentials"))
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, response ->
-                    Mono.error(new ExternalApiException("Keycloak is unable to authenticate user due to server error"))
-                )
-                .bodyToMono(AuthToken.class).block();
-    }
-
-    private RoleRepresentation assignRoleToUserRepresentation(String role) {
-        RolesResource roles = keycloak.realm(realm).roles();
-        return roles.get(role).toRepresentation();
-    }
 }
 

@@ -3,6 +3,7 @@ package com.wallet.application.service;
 import com.wallet.application.port.input.validationServiceUsesCases.ValidateBankVerificationNumberUseCase;
 import com.wallet.application.port.input.validationServiceUsesCases.ValidatePhoneNumberUseCase;
 import com.wallet.domain.exception.ExternalApiException;
+import com.wallet.domain.exception.IdentityVerificationException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.validationResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ValidationService implements ValidatePhoneNumberUseCase, ValidateBa
                 .bodyValue("{\"number\":\"" + phoneNumber + "\"}")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
-                    Mono.error(new InvalidUserCredentialsException(
+                    Mono.error(new IdentityVerificationException(
                             String.format("Phone number %s is invalid", phoneNumber)))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->
@@ -56,7 +57,7 @@ public class ValidationService implements ValidatePhoneNumberUseCase, ValidateBa
                 .bodyValue("{\"number\":\"" + bankVerificationNumber + "\"}")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        Mono.error(new InvalidUserCredentialsException(
+                        Mono.error(new IdentityVerificationException(
                                 String.format("Bank verification number %s is invalid", bankVerificationNumber)))
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->

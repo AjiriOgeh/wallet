@@ -52,34 +52,32 @@ public class WalletServiceTest {
         assertEquals(wallet.getWalletId(), 100L);
         assertEquals(wallet.getTransactions().size(), 3);
     }
-//
-//    @Test
-//    public void checkBalanceTest() {
-//        BigDecimal balance = walletService.checkBalance(100L);
-//        Wallet wallet = walletService.getWalletById(100L);
-//
-//        assertThat(balance).isNotNull();
-//        assertEquals(0, wallet.getBalance().compareTo(new BigDecimal(5000)));
-//    }
-//
-//    @Test
-//    public void checkBalance_withNonExistentWallet_throwExceptionTest() {
-//        assertThrows(WalletNotFoundException.class, ()-> walletService.checkBalance(101L));
-//    }
-//
-//    @Test
-//    public void getAllWalletTransactionsTest() {
-//        Set<Transaction> transactions = walletService.getAllWalletTransactions(100L);
-//
-//        assertThat(transactions).isNotNull();
-//        assertEquals(3, transactions.size());
-//        //assertEquals(transactions.);
-//    }
-//
-//    @Test
-//    public void getAll_nonExistentWalletTransactions_throwsExceptionTest() {
-//        assertThrows(WalletNotFoundException.class, ()-> walletService.getAllWalletTransactions(101L));
-//    }
+
+    @Test
+    public void checkBalanceTest() {
+        Wallet wallet = walletService.checkBalance(100L);
+
+        assertThat(wallet).isNotNull();
+        assertEquals(0, wallet.getBalance().compareTo(new BigDecimal(25000)));
+    }
+
+    @Test
+    public void checkBalance_withNonExistentWallet_throwExceptionTest() {
+        assertThrows(WalletNotFoundException.class, ()-> walletService.checkBalance(101L));
+    }
+
+    @Test
+    public void getAllWalletTransactionsTest() {
+        List<Transaction> transactions = walletService.getAllWalletTransactions(100L);
+
+        assertThat(transactions).isNotNull();
+        assertEquals(3, transactions.size());
+    }
+
+    @Test
+    public void getAll_nonExistentWalletTransactions_throwsExceptionTest() {
+        assertThrows(WalletNotFoundException.class, ()-> walletService.getAllWalletTransactions(101L));
+    }
 //
 //    @Test
 //    public void getAllWalletTransactionsByDate() {

@@ -3,6 +3,7 @@ package com.wallet.application.service;
 import com.wallet.application.port.input.walletServiceUseCases.DepositUseCase;
 import com.wallet.application.port.input.walletServiceUseCases.*;
 import com.wallet.application.port.output.WalletOutputPort;
+import com.wallet.domain.exception.DepositRequestException;
 import com.wallet.domain.exception.WalletNotFoundException;
 import com.wallet.domain.model.*;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.GetWalletTransactionsByDateRequest;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,10 +51,11 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     public InitialisePaymentResponse deposit(InitialisePaymentRequest initialisePaymentRequest) {
         userService.getUserByEmail(initialisePaymentRequest.getEmail());
         InitialisePaymentResponse response = paystackService.initialisePayment(
-                initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()); // make sure you mutilpy
+                initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()
+                        .multiply(new BigDecimal(100)));
 
         if (!response.getMessage().equals("Authorization URL created")) {
-            throw new RuntimeException("Invalid deposit details"); //jjoijoij
+            throw new DepositRequestException("Invalid deposit details");
         }
         return response;
     }
@@ -60,13 +63,12 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     @Override
     public Transaction verifyDeposit(String reference) {
         VerifyPaymentResponse response = paystackService.verifyPayment(reference);
-        if(!response.getData().getStatus().equals("success")) {
-            throw new RuntimeException("Failed to verify payment"); /// jlkjlpopipo
-        }
-        BigDecimal amount = response.getData().getAmount();
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
         Wallet wallet = getWalletById(user.getWallet().getWalletId());
-        wallet.setBalance(wallet.getBalance().add(amount)); // make sure you divide
+        if(response.getData().getStatus().equals("success")) {
+            BigDecimal amount = response.getData().getAmount();
+            wallet.setBalance(wallet.getBalance().add(amount.divide(new BigDecimal(100), RoundingMode.HALF_UP)));
+        }
         Transaction transaction = createTransaction(response);
         wallet.getTransactions().add(transaction);
         walletOutputPort.save(wallet);
@@ -106,8 +108,6 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         }
         return transactions;
     }
-
-
     // transfer
     // paysatack payment in outpout
 }
