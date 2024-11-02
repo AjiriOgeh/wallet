@@ -15,9 +15,6 @@
 //                    HttpMethod.POST,
 //                    "/public/**",
 //                    "/users/**"
-////                    "/deposit",
-////                    "/deposit/1"
-//
 //            );
 //            web.ignoring().requestMatchers(
 //                    HttpMethod.GET,
@@ -35,14 +32,6 @@
 //                    "/users/forgot-password",
 //                    "/users"
 //            );
-////            web.ignoring().requestMatchers(
-////                    HttpMethod.PATCH,
-////                    "/users"
-////            );
-//
-//
 //        };
-//
-//
 //    }
 //}

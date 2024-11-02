@@ -1,9 +1,9 @@
 package com.wallet.application.port.input.validationServiceUsesCases;
 
 
-import com.wallet.infrastructure.adapters.input.rest.dto.response.validationResponse;
+import com.wallet.infrastructure.adapters.input.rest.dto.response.ValidationResponse;
 
 public interface ValidatePhoneNumberUseCase {
 
-    validationResponse validatePhoneNumber(String phoneNumber);
+    ValidationResponse validatePhoneNumber(String phoneNumber);
 }

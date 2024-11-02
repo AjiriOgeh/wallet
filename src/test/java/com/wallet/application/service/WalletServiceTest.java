@@ -1,4 +1,4 @@
-package com.wallet.domain.service;
+package com.wallet.application.service;
 
 import com.wallet.application.service.WalletService;
 import com.wallet.domain.exception.WalletNotFoundException;

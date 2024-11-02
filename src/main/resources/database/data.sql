@@ -15,7 +15,7 @@ insert into wallets(wallet_id, balance) values
 
 insert into transactions(transaction_id, amount, transaction_status, date) values
     (100, '50000', 'SUCCESS', '2024-10-20T10:41:55.377819600'),
-    (101, '25000', 'SUCCESS', '2024-10-20T13:28:28.891123600'),
+    (101, '25000', 'ABANDONED', '2024-10-20T13:28:28.891123600'),
     (102, '45000', 'SUCCESS', '2024-10-20T15:12:19.943209600'),
     (103, '10000', 'SUCCESS', '2024-10-20T19:51:44.452218600');
 

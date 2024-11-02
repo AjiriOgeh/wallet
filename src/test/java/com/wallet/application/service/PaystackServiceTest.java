@@ -1,4 +1,4 @@
-package com.wallet.domain.service;
+package com.wallet.application.service;
 
 import com.wallet.application.service.PaystackService;
 import com.wallet.domain.exception.InvalidPaymentReferenceException;
@@ -27,7 +27,7 @@ public class PaystackServiceTest {
 
     @Test
     public void initializePaymentTest() {
-        String email = "bugsbunny@gmail.com";
+        String email = "alexhunt@gmail.com";
         BigDecimal amount = new BigDecimal(500);
         InitialisePaymentResponse response  = paystackService.initialisePayment(email, amount);
 

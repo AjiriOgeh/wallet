@@ -1,6 +1,5 @@
-package com.wallet.domain.service;
+package com.wallet.application.service;
 
-import com.wallet.application.service.UserService;
 import com.wallet.domain.exception.UserExistsException;
 import com.wallet.domain.exception.UserNotFoundException;
 import com.wallet.domain.model.User;
@@ -75,12 +74,8 @@ public class UserServiceTest {
     public void editUser_existingEmail_throwsExceptionTest() {
         User user = User.builder()
                 .userId(100L)
-                .firstname(null)
                 .lastname("hunt-parker")
                 .email("alexhunt@gmail.com")
-                .password(null)
-                .phoneNumber(null)
-                .bankVerificationNumber(null)
                 .build();
 
         assertThrows(UserExistsException.class, ()-> userService.updateUser(user));
