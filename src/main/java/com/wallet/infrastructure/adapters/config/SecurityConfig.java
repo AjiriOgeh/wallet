@@ -25,13 +25,14 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/admin").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "wallet/transactions/***").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.GET, "/transactions/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/auth/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/auth/signup/admin").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/v1/users/auth/verification-email/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/wallet/transactions/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/transactions/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("USER")
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

@@ -20,6 +20,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
+@RequestMapping("/api/v1/wallet")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -33,20 +34,20 @@ public class WalletRestAdapter {
     private final GetAllWalletTransactionsByDateUseCase getAllWalletTransactionsByDateUseCase;
     private final WalletRestMapper walletRestMapper;
 
-    @PostMapping("/wallet/deposit")
+    @PostMapping("/deposit")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deposit(@RequestBody @Valid final InitialisePaymentRequest initialisePaymentRequest) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(depositUseCase.deposit(initialisePaymentRequest), true));
     }
 
-    @GetMapping("/wallet/verify/{reference}")
+    @GetMapping("/verify/{reference}")
     public ResponseEntity<?> verify(@PathVariable final String reference) {
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(verifyDepositUseCase.verifyDeposit(reference), true));
     }
 
-    @GetMapping("/wallet/{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getWallet(@PathVariable final Long id) {
         Wallet wallet = getWalletByIdUseCase.getWalletById(id);
@@ -54,7 +55,7 @@ public class WalletRestAdapter {
                 .body(new ApiResponse(walletRestMapper.mapWalletToGetWalletResponse(wallet), true));
     }
 
-    @GetMapping("/wallet/balance/{id}")
+    @GetMapping("/balance/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getBalance(@PathVariable final Long id) {
         Wallet wallet = checkBalanceUseCase.checkBalance(id);
@@ -62,7 +63,7 @@ public class WalletRestAdapter {
                 .body(new ApiResponse(walletRestMapper.mapWalletToGetBalanceResponse(wallet), true));
     }
 
-    @GetMapping("/wallet/transactions/{id}")
+    @GetMapping("/transactions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getAllWalletTransactions(@PathVariable final Long id) {
         List<Transaction> allWalletTransactions = getAllWalletTransactionsUseCase.getAllWalletTransactions(id);
@@ -71,7 +72,7 @@ public class WalletRestAdapter {
                         .map(walletRestMapper::mapTransactionToTransactionResponse).toList(), true));
     }
 
-    @GetMapping("/wallet/transactions")
+    @GetMapping("/transactions")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getAllWalletTransactionsByDate(
             @RequestBody @Valid GetWalletTransactionsByDateRequest getWalletTransactionsByDateRequest) {

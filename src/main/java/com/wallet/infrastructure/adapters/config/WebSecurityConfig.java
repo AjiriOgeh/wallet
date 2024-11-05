@@ -25,13 +25,6 @@
 //                    "/public/**",
 //                    "/users/{id}"
 //            );
-//            web.ignoring().requestMatchers(
-//                    HttpMethod.PUT,
-//                    "/public/**",
-//                    "/users/{id}/send-verification-email",
-//                    "/users/forgot-password",
-//                    "/users"
-//            );
 //        };
 //    }
 //}

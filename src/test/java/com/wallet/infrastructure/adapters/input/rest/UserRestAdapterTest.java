@@ -1,6 +1,8 @@
 package com.wallet.infrastructure.adapters.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wallet.application.service.UserService;
+import com.wallet.domain.model.AuthToken;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.EditUserRequest;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.SignupRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,24 +28,30 @@ public class UserRestAdapterTest {
 
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserService userService;
+
+    private AuthToken token;
+
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
+        token = userService.login("alexhunt@gmail.com", "password");
     }
 
 
     @Test
     public void userSignUpTest() throws Exception {
         SignupRequest signupRequest = SignupRequest.builder()
-                .firstname("daffy")
-                .lastname("duck")
-                .email("daffyduck@gmail.com")
-                .password("daffyduck123.")
-                .phoneNumber("08034567890")
-                .bankVerificationNumber("34567890123")
+                .firstname("jason")
+                .lastname("robin")
+                .email("jasonrobin@gmail.com")
+                .password("password123.")
+                .phoneNumber("08067899822")
+                .bankVerificationNumber("23234545111")
                 .build();
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/v1/users/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(signupRequest))
         ).andExpect(status().isCreated()).andDo(print());
@@ -52,15 +60,15 @@ public class UserRestAdapterTest {
     @Test
     public void userSignsUp_withExistingEmail_throwsExceptionTest() throws Exception {
         SignupRequest signupRequest = SignupRequest.builder()
-                .firstname("bugs")
-                .lastname("bunny")
-                .email("bugsbunny@gmail.com")
-                .password("bugsbunny123.")
-                .phoneNumber("08012345678")
-                .bankVerificationNumber("12345678901")
+                .firstname("alex")
+                .lastname("hunter")
+                .email("alexhunt@gmail.com")
+                .password("password123.")
+                .phoneNumber("08066778899")
+                .bankVerificationNumber("54321543210")
                 .build();
 
-        mockMvc.perform(post("/auth/api/v1/users")
+        mockMvc.perform(post("/api/v1/users/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(signupRequest))
         ).andExpect(status().isCreated()).andDo(print());
@@ -70,17 +78,14 @@ public class UserRestAdapterTest {
     public void editUserTest() throws Exception {
         EditUserRequest editUserRequest = EditUserRequest.builder()
                 .userId(100L)
-                .firstname(null)
-                .lastname("carrots")
-                .email("bugsbunny@gmail.com")
-                .password(null)
-                .phoneNumber(null)
-                .bankVerificationNumber(null)
+                .lastname("parker")
+                .email("james@gmail.com")
                 .build();
 
-        mockMvc.perform(patch("/auth/api/v1/users")
+        mockMvc.perform(patch("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(editUserRequest))
+                .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
@@ -88,46 +93,47 @@ public class UserRestAdapterTest {
     public void editUser_existingEmail_throwsExceptionTest() throws Exception {
         EditUserRequest editUserRequest = EditUserRequest.builder()
                 .userId(100L)
-                .firstname(null)
-                .lastname("pig")
-                .email("porkypig@gmail.com")
-                .password(null)
-                .phoneNumber(null)
-                .bankVerificationNumber(null)
+                .lastname("hunter")
+                .email("alexhunt@gmail.com")
                 .build();
 
-        mockMvc.perform(patch("/auth/api/v1/users")
+        mockMvc.perform(patch("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(editUserRequest))
-        ).andExpect(status().isOk()).andDo(print());
+                .header("Authorization", "Bearer " + token.getAccessToken())
+        ).andExpect(status().isNotFound()).andDo(print());
     }
 
     @Test
     public void getUserByIdTest() throws Exception {
-        mockMvc.perform(get("/auth/api/v1/users/100")
+        mockMvc.perform(get("/api/v1/users/100")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
     public void getNonExistentUser_throwsExceptionTest() throws Exception {
-        mockMvc.perform(get("/auth/api/v1/users/100")
+        mockMvc.perform(get("/api/v1/users/34567")
                 .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk()).andDo(print());
+                .header("Authorization", "Bearer " + token.getAccessToken())
+        ).andExpect(status().isNotFound()).andDo(print());
     }
 
     @Test
     public void deleteUserByIdTest() throws Exception {
-        mockMvc.perform(delete("/auth/api/v1/users/100")
+        mockMvc.perform(delete("/api/v1/users/100")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
     public void deleteNonExistentUserTest_throwsExceptionTest() throws Exception {
-        mockMvc.perform(delete("/auth/api/v1/users/101")
+        mockMvc.perform(delete("/api/v1/users/34567")
                 .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk()).andDo(print());
+                .header("Authorization", "Bearer " + token.getAccessToken())
+        ).andExpect(status().isNotFound()).andDo(print());
     }
 
 }

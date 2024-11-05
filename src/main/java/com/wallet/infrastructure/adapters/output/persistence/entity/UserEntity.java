@@ -32,7 +32,7 @@ public class UserEntity {
     @Column(unique = true)
     private String phoneNumber;
     @OneToOne
-    @JoinColumn(name = "wallet_entity_id")
+    @JoinColumn(name = "wallet_id")
     private WalletEntity walletEntity;
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

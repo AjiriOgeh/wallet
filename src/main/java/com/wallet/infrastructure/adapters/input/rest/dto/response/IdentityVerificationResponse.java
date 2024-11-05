@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ValidationResponse {
+public class IdentityVerificationResponse {
     private boolean status;
     private String detail;
 }

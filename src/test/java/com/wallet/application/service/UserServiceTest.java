@@ -99,7 +99,6 @@ public class UserServiceTest {
     @Test
     public void deleteUserByIdTest() {
         userService.deleteUser(104L);
-
         try {
             userService.getUserById(104L);
         } catch (UserNotFoundException exception) {

@@ -1,6 +1,8 @@
 package com.wallet.application.service;
 
 import com.wallet.application.port.input.userServiceUseCases.*;
+import com.wallet.application.port.output.AuthOutputPort;
+import com.wallet.application.port.output.IdentityVerificationOutputPort;
 import com.wallet.application.port.output.UserOutputPort;
 import com.wallet.domain.exception.UserExistsException;
 import com.wallet.domain.exception.UserNotFoundException;
@@ -20,14 +22,13 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLoginUseCase, UpdateUserUseCase,
-        GetUserByIdUseCase, GetUserByEmailUseCase, GetAllUsersUseCase, DeleteUserUseCase {
+        GetUserByIdUseCase, GetUserByEmailUseCase, GetAllUsersUseCase, DeleteUserUseCase, SendVerificationEmailUseCase {
 
     private final UserOutputPort userOutputPort;
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
-    private final AuthService authService;
-    private final ValidationService validationService;
-
+    private final AuthOutputPort authOutputPort;
+    private final IdentityVerificationOutputPort identityVerificationOutputPort;
 
 
     @Override
@@ -38,7 +39,7 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
         AuthUser authUser = mapUserToAuthUser(user);
         //log.info("new user -> {}", user.getPassword());
         User newUser = userOutputPort.save(user);
-        Response response = authService.createUserRepresentation(authUser);
+        Response response = authOutputPort.createAuthUser(authUser);
         //log.info("new user -> {}", newUser);
         String keyCloakId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         newUser.setWallet(walletService.createWallet());
@@ -58,15 +59,15 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
 
     @Override
     public AuthUser signUpAdmin(AuthUser authUser) {
-        Response response = authService.createUserRepresentation(authUser);
+        Response response = authOutputPort.createAuthUser(authUser);
         String keyCloakId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         authUser.setKeycloakId(keyCloakId);
         return authUser;
     }
 
     private void verifyUserIdentity(User user) {
-        validationService.validateBankVerificationNumber(user.getBankVerificationNumber());
-        validationService.validatePhoneNumber(user.getPhoneNumber());
+        identityVerificationOutputPort.verifyBankVerificationNumber(user.getBankVerificationNumber());
+        identityVerificationOutputPort.verifyPhoneNumber(user.getPhoneNumber());
     }
 
     private void validateUniqueFields(User user) {
@@ -91,8 +92,13 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
     }
 
     @Override
+    public void sendVerificationEmail(String keycloakId) {
+        authOutputPort.sendVerificationEmail(keycloakId);
+    }
+
+    @Override
     public AuthToken login(String email, String password) {
-        return authService.login(email, password);
+        return authOutputPort.login(email, password);
     }
 
     @Override
@@ -100,18 +106,20 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
         User existingUser = getUserById(user.getUserId());
         if (!existingUser.getEmail().equals(user.getEmail())) validateEmail(user);
         if (!existingUser.getPhoneNumber().equals(user.getPhoneNumber())
-                && user.getPhoneNumber() !=null) {
+                && user.getPhoneNumber() != null) {
             validatePhoneNumber(user);
-            validationService.validatePhoneNumber(user.getPhoneNumber());
+            identityVerificationOutputPort.verifyPhoneNumber(user.getPhoneNumber());
         }
+        AuthUser authUser = mapUserToAuthUser(user);
+        authOutputPort.editAuthUser(existingUser.getKeycloakId(), authUser);
         updateUserFields(user, existingUser);
-        authService.editUserRepresentation(existingUser.getEmail(), user);
         return userOutputPort.save(existingUser);
     }
 
     private static void updateUserFields(User user, User existingUser) {
         if (user.getFirstname() != null) existingUser.setFirstname(user.getFirstname());
         if (user.getLastname() != null) existingUser.setLastname(user.getLastname());
+        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
         if (user.getPhoneNumber() != null) existingUser.setPhoneNumber(user.getPhoneNumber());
     }
 
@@ -136,10 +144,7 @@ public class UserService implements SignUpUseCase, SignUpAdminUseCase, UserLogin
     @Override
     public void deleteUser(Long id) {
         User user = getUserById(id);
-        authService.deleteUserRepresentation(user.getEmail());
+        authOutputPort.deleteAuthUser(user.getEmail());
         userOutputPort.delete(user);
     }
-
-    // forgot password;
-    // send verification email
 }

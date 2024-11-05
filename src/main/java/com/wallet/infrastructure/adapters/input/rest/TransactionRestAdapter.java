@@ -13,10 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +21,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
+@RequestMapping("/api/v1/transactions")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class TransactionRestAdapter {
     private final GetAllTransactionsByDateUseCase getAllTransactionsByDateUseCase;
     private final TransactionRestMapper transactionRestMapper;
 
-    @GetMapping("/transactions/{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getTransactionById(@PathVariable Long id) {
         Transaction transaction = getTransactionByIdUseCase.getTransactionById(id);
@@ -44,7 +42,7 @@ public class TransactionRestAdapter {
                         .mapTransactionToTransactionResponse(transaction), true));
     }
 
-    @GetMapping("/transactions")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllTransactions() {
         List<Transaction> transactions = getAllTransactionsUseCase.getAllTransactions();
@@ -53,7 +51,7 @@ public class TransactionRestAdapter {
                         .map(transactionRestMapper::mapTransactionToTransactionResponse).toList(), true));
     }
 
-    @GetMapping("/transactions/status")
+    @GetMapping("/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllTransactionsByStatus(@RequestParam final TransactionStatus transactionStatus) {
         List<Transaction> transactions = getAllTransactionsByStatusUseCase.getAllTransactionsByStatus(transactionStatus);
@@ -62,7 +60,7 @@ public class TransactionRestAdapter {
                         .map(transactionRestMapper::mapTransactionToTransactionResponse).toList(), true));
     }
 
-    @GetMapping("/transactions/date")
+    @GetMapping("/date")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllTransactionsByDate(@RequestParam final LocalDateTime localDateTime) {
         List<Transaction> transactions = getAllTransactionsByDateUseCase.getAllTransactionsByDate(localDateTime);

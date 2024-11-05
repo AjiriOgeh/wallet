@@ -27,7 +27,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         GetAllWalletTransactionsUseCase, GetAllWalletTransactionsByDateUseCase {
 
     private final WalletOutputPort walletOutputPort;
-    private final PaystackService paystackService;
+    private final PaymentGatewayService paymentGatewayService;
     private final TransactionService transactionService;
 
     @Lazy
@@ -50,20 +50,22 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
     @Override
     public InitialisePaymentResponse deposit(InitialisePaymentRequest initialisePaymentRequest) {
         userService.getUserByEmail(initialisePaymentRequest.getEmail());
-        InitialisePaymentResponse response = paystackService.initialisePayment(
+        InitialisePaymentResponse response = paymentGatewayService.initialisePayment(
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()
                         .multiply(new BigDecimal(100)));
         if (!response.getMessage().equals("Authorization URL created")) {
             throw new DepositRequestException("Invalid deposit details");
         }
+        System.out.println(response.getData().getAuthorizationUrl());
+        System.out.println(response.getData().getReference());
         return response;
     }
 
     @Override
     public Transaction verifyDeposit(String reference) {
-        VerifyPaymentResponse response = paystackService.verifyPayment(reference);
+        VerifyPaymentResponse response = paymentGatewayService.verifyPayment(reference);
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
-        Wallet wallet = getWalletById(user.getWallet().getWalletId());
+        Wallet wallet = user.getWallet();
         if(response.getData().getStatus().equals("success")) {
             BigDecimal amount = response.getData().getAmount();
             wallet.setBalance(wallet.getBalance().add(amount.divide(new BigDecimal(100), RoundingMode.HALF_UP)));

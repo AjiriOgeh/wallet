@@ -26,6 +26,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
+@RequestMapping("/api/v1/users")
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class UserRestAdapter {
 
     private final SignUpUseCase signUpUseCase;
     private final SignUpAdminUseCase signUpAdminUseCase;
+    private final SendVerificationEmailUseCase sendVerificationEmailUseCase;
     private final UserLoginUseCase userLoginUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
@@ -40,16 +42,15 @@ public class UserRestAdapter {
     private final DeleteUserUseCase deleteUserUseCase;
     private final UserRestMapper userRestMapper;
 
-    @PostMapping("/users")
+    @PostMapping("/auth/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid final SignupRequest signupRequest) {
         User user =  userRestMapper.mapSignUpRequestToUser(signupRequest);
         User newUser = signUpUseCase.signUp(user);
-//        log.info("New User -> {}", newUser);
         return ResponseEntity.status(CREATED)
                 .body(new ApiResponse(userRestMapper.mapUserToSignUpResponse(newUser), true));
     }
 
-    @PostMapping("/users/admin")
+    @PostMapping("/auth/signup/admin")
     public ResponseEntity<?> signupAdmin(@RequestBody @Valid final SignupAdminRequest signupAdminRequest) {
         AuthUser authUser = userRestMapper.mapSignupAdminRequestToAuthUser(signupAdminRequest);
         AuthUser newAuthUser = signUpAdminUseCase.signUpAdmin(authUser);
@@ -57,14 +58,21 @@ public class UserRestAdapter {
                 .body(new ApiResponse(userRestMapper.mapAuthUserToSignUpAdminResponse(newAuthUser), true));
     }
 
-    @PostMapping("/users/login")
+    @PostMapping("/auth/verification-email/{keycloakId}")
+    public ResponseEntity<?> sendVerificationEmail(@PathVariable final String keycloakId) {
+        sendVerificationEmailUseCase.sendVerificationEmail(keycloakId);
+        return ResponseEntity.status(OK)
+                .body(new ApiResponse("Verification email sent successfully", true));
+    }
+
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid final LoginRequest loginRequest) {
         AuthToken authToken = userLoginUseCase.login(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.status(OK)
                 .body(new ApiResponse(userRestMapper.mapAuthTokenToAuthTokenResponse(authToken), true));
     }
 
-    @PatchMapping("/users")
+    @PatchMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> editUser(@RequestBody @Valid final EditUserRequest editUserRequest) {
         User user = userRestMapper.mapEditUserRequestToUser(editUserRequest);
@@ -73,7 +81,7 @@ public class UserRestAdapter {
                 .body(new ApiResponse(userRestMapper.mapUserToEditUserResponse(editedUser), true));
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getUser(@PathVariable final Long id) {
         User user = getUserByIdUseCase.getUserById(id);
@@ -81,7 +89,7 @@ public class UserRestAdapter {
                 .body(new ApiResponse(userRestMapper.mapUserToGetUserResponse(user), true));
     }
 
-    @GetMapping("/users")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
         List<User> users = getAllUsersUseCase.getAllUsers();
@@ -90,7 +98,7 @@ public class UserRestAdapter {
                         .map(userRestMapper::mapUserToGetUserResponse).toList(), true));
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> deleteUser(@PathVariable final Long id) {
         deleteUserUseCase.deleteUser(id);

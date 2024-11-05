@@ -1,8 +1,6 @@
 package com.wallet.application.service;
 
-import com.wallet.application.service.PaystackService;
 import com.wallet.domain.exception.InvalidPaymentReferenceException;
-import com.wallet.domain.exception.UserNotFoundException;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.InitialisePaymentResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Slf4j
 @SpringBootTest
 @Sql(scripts = {"/database/data.sql"})
-public class PaystackServiceTest {
+public class PaymentGatewayServiceTest {
 
     @Autowired
-    private PaystackService paystackService;
+    private PaymentGatewayService paymentGatewayService;
 
     @Test
     public void initializePaymentTest() {
         String email = "alexhunt@gmail.com";
-        BigDecimal amount = new BigDecimal(500);
-        InitialisePaymentResponse response  = paystackService.initialisePayment(email, amount);
+        BigDecimal amount = new BigDecimal(5000);
+        InitialisePaymentResponse response  = paymentGatewayService.initialisePayment(email, amount);
 
         assertThat(response).isNotNull();
         assertThat(response.isStatus()).isTrue();
@@ -39,7 +37,7 @@ public class PaystackServiceTest {
 
     @Test
     public void verifyPaymentTest(){
-        VerifyPaymentResponse response = paystackService.verifyPayment("qjei56x15i");
+        VerifyPaymentResponse response = paymentGatewayService.verifyPayment("qjei56x15i");
 
         assertThat(response).isNotNull();
         assertThat(response.isStatus()).isTrue();
@@ -49,6 +47,6 @@ public class PaystackServiceTest {
 
     @Test
     public void verifyNonExistentReference_ThrowsExceptionTest() {
-        assertThrows(InvalidPaymentReferenceException.class, ()-> paystackService.verifyPayment("non existent reference"));
+        assertThrows(InvalidPaymentReferenceException.class, ()-> paymentGatewayService.verifyPayment("non existent reference"));
     }
 }

@@ -3,7 +3,6 @@ package com.wallet.infrastructure.adapters.input.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wallet.application.service.UserService;
 import com.wallet.domain.model.AuthToken;
-import com.wallet.infrastructure.adapters.input.rest.dto.request.InitialisePaymentRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,22 +12,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Sql(scripts = {"/database/data.sql"})
-public class WalletRestAdapterTest {
+public class TransactionRestAdapterTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private ObjectMapper objectMapper;
 
     @Autowired
     private UserService userService;
@@ -37,51 +32,36 @@ public class WalletRestAdapterTest {
 
     @BeforeEach
     public void setUp() {
-        objectMapper = new ObjectMapper();
-        token = userService.login("alexhunt@gmail.com", "password");
+        token = userService.login("tedjacob@gmail.com", "password");
     }
 
     @Test
-    public void deposit() throws Exception{
-        InitialisePaymentRequest initialisePaymentRequest = InitialisePaymentRequest.builder()
-                .email("alexhunt@gmail.com")
-                .amount(new BigDecimal(50000))
-                .build();
-
-        mockMvc.perform(post("/api/v1/wallet/deposit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(initialisePaymentRequest))
-                .header("Authorization", "Bearer " + token.getAccessToken())
-        ).andExpect(status().isOk()).andDo(print());
-    }
-
-    @Test
-    public void verify()throws Exception {
-        mockMvc.perform(get("/api/v1/wallet/verify/564xl4u5a2")
+    public void getTransactionById() throws Exception{
+        mockMvc.perform(get("/api/v1/transactions/100")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
-    void getWallet() throws Exception{
-        mockMvc.perform(get("/api/v1/wallet/100")
+    public void getAllTransactions() throws Exception{
+        mockMvc.perform(get("/api/v1/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
-    void getBalance() throws Exception{
-        mockMvc.perform(get("/api/v1/wallet/balance/100")
+    public void getAllTransactionsByStatus() throws Exception{
+        mockMvc.perform(get("/api/v1/transactions/status?transactionStatus=SUCCESS")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());
     }
 
     @Test
-    void getAllWalletTransactions() throws Exception{
-        mockMvc.perform(get("/api/v1/wallet/transactions/100")
+    public void getAllTransactionsByDate() throws Exception{
+        mockMvc.perform(get("/api/v1/transactions/date?localDateTime=2024-10-20T10:41:55.377819600")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token.getAccessToken())
         ).andExpect(status().isOk()).andDo(print());

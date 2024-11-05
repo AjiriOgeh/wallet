@@ -1,14 +1,19 @@
 package com.wallet.infrastructure.adapters.config;
 
+import com.wallet.application.port.output.AuthOutputPort;
+import com.wallet.application.port.output.IdentityVerificationOutputPort;
+import com.wallet.application.port.output.PaymentGatewayOutputPort;
 import com.wallet.application.port.output.TransactionOutputPort;
 import com.wallet.application.service.*;
+import com.wallet.infrastructure.adapters.KeycloakAdapter;
+import com.wallet.infrastructure.adapters.PaystackAdapter;
+import com.wallet.infrastructure.adapters.PremblyAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.TransactionPersistenceAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.UserPersistenceAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.WalletPersistenceAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.mapper.TransactionPersistenceMapper;
 import com.wallet.infrastructure.adapters.output.persistence.mapper.UserPersistenceMapper;
 import com.wallet.infrastructure.adapters.output.persistence.mapper.WalletPersistenceMapper;
-import com.wallet.infrastructure.adapters.output.persistence.repository.PaystackOutputAdapter;
 import com.wallet.infrastructure.adapters.output.persistence.repository.TransactionRepository;
 import com.wallet.infrastructure.adapters.output.persistence.repository.UserRepository;
 import com.wallet.infrastructure.adapters.output.persistence.repository.WalletRepository;
@@ -23,8 +28,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class BeanConfiguration {
 
     @Bean
-    public UserService userService(final UserPersistenceAdapter userPersistenceAdapter, final PasswordEncoder passwordEncoder, final WalletService walletService, final AuthService authService, final ValidationService validationService) {
-        return new UserService(userPersistenceAdapter, passwordEncoder, walletService, authService, validationService);
+    public UserService userService(final UserPersistenceAdapter userPersistenceAdapter, final PasswordEncoder passwordEncoder, final WalletService walletService, final AuthOutputPort authOutputPort, final IdentityVerificationOutputPort identityVerificationOutputPort) {
+        return new UserService(userPersistenceAdapter, passwordEncoder, walletService, authOutputPort, identityVerificationOutputPort);
     }
 
     @Bean
@@ -33,18 +38,13 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public WalletService walletService(final WalletPersistenceAdapter walletPersistenceAdapter, final PaystackService paystackService, final TransactionService transactionService) {
-        return new WalletService(walletPersistenceAdapter, paystackService, transactionService);
+    public WalletService walletService(final WalletPersistenceAdapter walletPersistenceAdapter, final PaymentGatewayService paymentGatewayService, final TransactionService transactionService) {
+        return new WalletService(walletPersistenceAdapter, paymentGatewayService, transactionService);
     }
 
     @Bean
     public WalletPersistenceAdapter walletPersistenceAdapter(final WalletRepository walletRepository, final WalletPersistenceMapper walletPersistenceMapper){
         return new WalletPersistenceAdapter(walletRepository, walletPersistenceMapper);
-    }
-
-    @Bean
-    public PaystackOutputAdapter paystackOutputAdapter() {
-        return new PaystackOutputAdapter();
     }
 
     @Bean
@@ -58,8 +58,13 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AuthService authService(final Keycloak keycloak, final WebClient webClient) {
-        return new AuthService(keycloak, webClient);
+    public AuthService authService(final AuthOutputPort authOutputPort) {
+        return new AuthService(authOutputPort);
+    }
+
+    @Bean
+    public KeycloakAdapter keycloakAdapter(final Keycloak keycloak, final WebClient webClient) {
+        return new KeycloakAdapter(keycloak, webClient);
     }
 
     @Bean
@@ -67,13 +72,28 @@ public class BeanConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+//    @Bean
+//    public IdentityVerificationService validationService(final IdentityVerificationOutputPort identityVerificationOutputPort) {
+//        return new IdentityVerificationService(identityVerificationOutputPort);
+//    }
+
     @Bean
-    public ValidationService validationService(final WebClient webClient) {
-        return new ValidationService(webClient);
+    public IdentityVerificationService identityVerificationService(final IdentityVerificationOutputPort identityVerificationOutputPort) {
+        return new IdentityVerificationService(identityVerificationOutputPort);
     }
 
     @Bean
-    public PaystackService paystackService(final WebClient webClient) {
-        return new PaystackService(webClient);
+    public PremblyAdapter premblyAdapter(final WebClient webClient) {
+        return new PremblyAdapter(webClient);
+    }
+
+    @Bean
+    public PaymentGatewayService paystackService(final PaymentGatewayOutputPort paymentGatewayOutputPort) {
+        return new PaymentGatewayService(paymentGatewayOutputPort);
+    }
+
+    @Bean
+    public PaystackAdapter paystackAdapter(final WebClient webClient) {
+        return new PaystackAdapter(webClient);
     }
 }

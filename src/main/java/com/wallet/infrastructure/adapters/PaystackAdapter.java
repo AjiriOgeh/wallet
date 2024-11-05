@@ -1,14 +1,12 @@
-package com.wallet.application.service;
+package com.wallet.infrastructure.adapters;
 
-import com.wallet.application.port.input.paystackUseCases.InitialisePaymentUseCase;
-import com.wallet.application.port.input.paystackUseCases.VerifyPaymentUseCase;
+import com.wallet.application.port.output.PaymentGatewayOutputPort;
 import com.wallet.domain.exception.ExternalApiException;
 import com.wallet.domain.exception.InvalidPaymentReferenceException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
-import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
 import com.wallet.infrastructure.adapters.input.rest.dto.response.InitialisePaymentResponse;
+import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -20,9 +18,8 @@ import java.math.BigDecimal;
 import static com.wallet.domain.constant.ExternalApiEndpoints.PAYSTACK_INITIALIZE_PAY_URL;
 import static com.wallet.domain.constant.ExternalApiEndpoints.PAYSTACK_VERIFY_URL;
 
-@Slf4j
 @RequiredArgsConstructor
-public class PaystackService implements InitialisePaymentUseCase, VerifyPaymentUseCase {
+public class PaystackAdapter implements PaymentGatewayOutputPort {
 
     @Value("${paystack.api.key}")
     private String paystackSecretKey;
