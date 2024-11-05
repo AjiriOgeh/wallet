@@ -2,6 +2,7 @@ package com.wallet.application.service;
 
 import com.wallet.application.port.input.walletServiceUseCases.DepositUseCase;
 import com.wallet.application.port.input.walletServiceUseCases.*;
+import com.wallet.application.port.output.PaymentGatewayOutputPort;
 import com.wallet.application.port.output.WalletOutputPort;
 import com.wallet.domain.exception.DepositRequestException;
 import com.wallet.domain.exception.InvalidUserCredentialsException;
@@ -30,7 +31,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
 
     private final WalletOutputPort walletOutputPort;
     private final PasswordEncoder passwordEncoder;
-    private final PaymentGatewayService paymentGatewayService;
+    private final PaymentGatewayOutputPort paymentGatewayOutputPort;
     private final TransactionService transactionService;
 
     @Lazy
@@ -55,7 +56,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         User user = userService.getUserByEmail(initialisePaymentRequest.getEmail());
         if (!passwordEncoder.matches(initialisePaymentRequest.getPassword(), user.getPassword()))
             throw new InvalidUserCredentialsException("Invalid password");
-        InitialisePaymentResponse response = paymentGatewayService.initialisePayment(
+        InitialisePaymentResponse response = paymentGatewayOutputPort.initialisePayment(
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()
                         .multiply(new BigDecimal(100)));
         if (!response.getMessage().equals("Authorization URL created")) {
@@ -68,12 +69,12 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
 
     @Override
     public Transaction verifyDeposit(String reference) {
-        VerifyPaymentResponse response = paymentGatewayService.verifyPayment(reference);
+        VerifyPaymentResponse response = paymentGatewayOutputPort.verifyPayment(reference);
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
         Wallet wallet = user.getWallet();
         if (response.getData().getStatus().equals("success")) {
             BigDecimal amount = response.getData().getAmount();
-            wallet.setBalance(wallet.getBalance().add(amount.divide(new BigDecimal(100), RoundingMode.HALF_UP)));
+            wallet.setBalance((wallet.getBalance().add(amount)).divide(new BigDecimal(100), RoundingMode.HALF_UP));
         }
         Transaction transaction = createTransaction(response);
         wallet.getTransactions().add(transaction);
@@ -114,4 +115,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         }
         return transactions;
     }
+
+
+
 }

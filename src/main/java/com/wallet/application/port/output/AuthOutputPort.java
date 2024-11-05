@@ -2,7 +2,6 @@ package com.wallet.application.port.output;
 
 import com.wallet.domain.model.AuthToken;
 import com.wallet.domain.model.AuthUser;
-import com.wallet.domain.model.User;
 import jakarta.ws.rs.core.Response;
 
 public interface AuthOutputPort {

@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InitialisePaymentResponseData {
-    @JsonProperty("authorization_url")
-    private String authorizationUrl;
-    @JsonProperty("access_code")
-    private String accessCode;
-    @JsonProperty("reference")
-    private String reference;
+public class CreateTransferRecipientResponse {
+    private boolean status;
+    private String message;
+    @JsonProperty("data")
+    private CreateTransferRecipientResponseData data;
 }
+
+

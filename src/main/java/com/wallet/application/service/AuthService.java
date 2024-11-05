@@ -7,7 +7,6 @@ import com.wallet.application.port.input.authServiceUseCases.LoginAuthUserUseCas
 import com.wallet.application.port.output.AuthOutputPort;
 import com.wallet.domain.model.AuthToken;
 import com.wallet.domain.model.AuthUser;
-import com.wallet.domain.model.User;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
