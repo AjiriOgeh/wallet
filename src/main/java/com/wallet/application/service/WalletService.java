@@ -4,6 +4,7 @@ import com.wallet.application.port.input.walletServiceUseCases.DepositUseCase;
 import com.wallet.application.port.input.walletServiceUseCases.*;
 import com.wallet.application.port.output.WalletOutputPort;
 import com.wallet.domain.exception.DepositRequestException;
+import com.wallet.domain.exception.InvalidUserCredentialsException;
 import com.wallet.domain.exception.WalletNotFoundException;
 import com.wallet.domain.model.*;
 import com.wallet.infrastructure.adapters.input.rest.dto.request.GetWalletTransactionsByDateRequest;
@@ -13,6 +14,7 @@ import com.wallet.infrastructure.adapters.input.rest.dto.response.VerifyPaymentR
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +29,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         GetAllWalletTransactionsUseCase, GetAllWalletTransactionsByDateUseCase {
 
     private final WalletOutputPort walletOutputPort;
+    private final PasswordEncoder passwordEncoder;
     private final PaymentGatewayService paymentGatewayService;
     private final TransactionService transactionService;
 
@@ -49,7 +52,9 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
 
     @Override
     public InitialisePaymentResponse deposit(InitialisePaymentRequest initialisePaymentRequest) {
-        userService.getUserByEmail(initialisePaymentRequest.getEmail());
+        User user = userService.getUserByEmail(initialisePaymentRequest.getEmail());
+        if (!passwordEncoder.matches(initialisePaymentRequest.getPassword(), user.getPassword()))
+            throw new InvalidUserCredentialsException("Invalid password");
         InitialisePaymentResponse response = paymentGatewayService.initialisePayment(
                 initialisePaymentRequest.getEmail(), initialisePaymentRequest.getAmount()
                         .multiply(new BigDecimal(100)));
@@ -66,7 +71,7 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         VerifyPaymentResponse response = paymentGatewayService.verifyPayment(reference);
         User user = userService.getUserByEmail(response.getData().getCustomer().getEmail());
         Wallet wallet = user.getWallet();
-        if(response.getData().getStatus().equals("success")) {
+        if (response.getData().getStatus().equals("success")) {
             BigDecimal amount = response.getData().getAmount();
             wallet.setBalance(wallet.getBalance().add(amount.divide(new BigDecimal(100), RoundingMode.HALF_UP)));
         }

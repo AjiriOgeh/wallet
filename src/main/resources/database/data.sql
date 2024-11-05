@@ -21,9 +21,9 @@ insert into wallets_transactions(transactions_transaction_id, wallet_entity_wall
    (102, 102),
    (103, 103);
 
-insert into users(user_id, firstname, lastname, email, phone_number, time_created, wallet_id) values
-    (100, 'alex', 'hunt', 'alexhunt@gmail.com', '08012345678', '2024-10-18T10:13:30.996779300', 100),
-    (101, 'eva', 'price', 'evaprice@gmail.com', '08023456789', '2024-10-18T10:16:49.327239900', 101),
-    (102, 'jake', 'ross', 'jakeross@gmail.com', '08034567890', '2024-10-18T10:18:15.426931500', 102),
-    (103, 'zoe', 'davis', 'zoedavis@gmail.com', '08045678901', '2024-10-18T10:21:27.168261100', 103);
+insert into users(user_id, firstname, lastname, email, phone_number, time_created, wallet_id, password) values
+    (100, 'alex', 'hunt', 'alexhunt@gmail.com', '08012345678', '2024-10-18T10:13:30.996779300', 100, '$2a$10$AIZEixorsrgQUXK0I6YgguYOM/eIrOKUEQkIFcD47w0fuEy86flCm'),
+    (101, 'eva', 'price', 'evaprice@gmail.com', '08023456789', '2024-10-18T10:16:49.327239900', 101, '$2a$10$AIZEixorsrgQUXK0I6YgguYOM/eIrOKUEQkIFcD47w0fuEy86flCm'),
+    (102, 'jake', 'ross', 'jakeross@gmail.com', '08034567890', '2024-10-18T10:18:15.426931500', 102, '$2a$10$AIZEixorsrgQUXK0I6YgguYOM/eIrOKUEQkIFcD47w0fuEy86flCm'),
+    (103, 'zoe', 'davis', 'zoedavis@gmail.com', '08045678901', '2024-10-18T10:21:27.168261100', 103, '$2a$10$AIZEixorsrgQUXK0I6YgguYOM/eIrOKUEQkIFcD47w0fuEy86flCm');
 

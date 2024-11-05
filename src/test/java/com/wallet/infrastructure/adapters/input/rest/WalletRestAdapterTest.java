@@ -46,6 +46,7 @@ public class WalletRestAdapterTest {
         InitialisePaymentRequest initialisePaymentRequest = InitialisePaymentRequest.builder()
                 .email("alexhunt@gmail.com")
                 .amount(new BigDecimal(50000))
+                .password("password")
                 .build();
 
         mockMvc.perform(post("/api/v1/wallet/deposit")

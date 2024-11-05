@@ -32,6 +32,7 @@ public class WalletServiceTest {
                 .builder()
                 .amount(new BigDecimal(5000))
                 .email("alexhunt@gmail.com")
+                .password("password")
                 .build();
         InitialisePaymentResponse response = walletService.deposit(initializePaymentRequest);
 

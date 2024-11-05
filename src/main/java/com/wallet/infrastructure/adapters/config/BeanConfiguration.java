@@ -38,8 +38,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public WalletService walletService(final WalletPersistenceAdapter walletPersistenceAdapter, final PaymentGatewayService paymentGatewayService, final TransactionService transactionService) {
-        return new WalletService(walletPersistenceAdapter, paymentGatewayService, transactionService);
+    public WalletService walletService(final WalletPersistenceAdapter walletPersistenceAdapter, final PasswordEncoder passwordEncoder, final PaymentGatewayService paymentGatewayService, final TransactionService transactionService) {
+        return new WalletService(walletPersistenceAdapter, passwordEncoder, paymentGatewayService, transactionService);
     }
 
     @Bean

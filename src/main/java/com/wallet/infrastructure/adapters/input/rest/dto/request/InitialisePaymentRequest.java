@@ -21,5 +21,5 @@ public class InitialisePaymentRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be a positive number")
     @Digits(integer = 12, fraction = 6)
     private BigDecimal amount;
-    private Long walletId;
+    private String password;
 }
