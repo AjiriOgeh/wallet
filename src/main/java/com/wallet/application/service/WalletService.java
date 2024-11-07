@@ -115,7 +115,4 @@ public class WalletService implements CreateWalletUseCase, GetWalletByIdUseCase,
         }
         return transactions;
     }
-
-
-
 }

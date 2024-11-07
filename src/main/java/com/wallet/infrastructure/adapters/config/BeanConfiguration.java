@@ -72,11 +72,6 @@ public class BeanConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public IdentityVerificationService validationService(final IdentityVerificationOutputPort identityVerificationOutputPort) {
-//        return new IdentityVerificationService(identityVerificationOutputPort);
-//    }
-
     @Bean
     public IdentityVerificationService identityVerificationService(final IdentityVerificationOutputPort identityVerificationOutputPort) {
         return new IdentityVerificationService(identityVerificationOutputPort);

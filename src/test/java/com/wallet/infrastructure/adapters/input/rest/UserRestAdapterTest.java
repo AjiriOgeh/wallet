@@ -79,7 +79,7 @@ public class UserRestAdapterTest {
         EditUserRequest editUserRequest = EditUserRequest.builder()
                 .userId(100L)
                 .lastname("parker")
-                .email("james@gmail.com")
+                .email("james-parker@gmail.com")
                 .build();
 
         mockMvc.perform(patch("/api/v1/users")

@@ -68,6 +68,5 @@ public class PaystackAdapterTest {
 
         InitiateTransferResponse response = paystackAdapter.initiateTransfer(source, amount, recipient, reason);
         assertThat(response).isNotNull();
-        System.out.println(response);
     }
 }
